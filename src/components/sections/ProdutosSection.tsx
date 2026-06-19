@@ -44,7 +44,7 @@ export default function ProdutosSection() {
         setGallery(
           data
             .filter((img: { type?: string }) => (img.type || "produto") === "produto")
-            .slice(-4)
+            .slice(0, 4)
         )
       )
   }, [])

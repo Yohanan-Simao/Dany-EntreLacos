@@ -1,59 +1,30 @@
-import { randomBytes } from "crypto"
-import { writeFile, readFile } from "fs/promises"
-import { existsSync } from "fs"
-import path from "path"
+import { createHmac, randomBytes } from "crypto"
 
-const TOKENS_FILE = path.join(process.cwd(), "data", "tokens.json")
+const SECRET = process.env.ADMIN_PASSWORD || "fallback-secret"
 const TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000
 
-type StoredToken = {
-  token: string
-  createdAt: number
+export function createToken(): string {
+  const payload = `${Date.now()}:${randomBytes(8).toString("hex")}`
+  const signature = createHmac("sha256", SECRET).update(payload).digest("hex")
+  return `${payload}.${signature}`
 }
 
-async function getTokens(): Promise<StoredToken[]> {
-  if (!existsSync(TOKENS_FILE)) return []
+export function validateToken(token: string): boolean {
   try {
-    const data = await readFile(TOKENS_FILE, "utf-8")
-    return JSON.parse(data)
+    const lastDot = token.lastIndexOf(".")
+    if (lastDot === -1) return false
+
+    const payload = token.slice(0, lastDot)
+    const signature = token.slice(lastDot + 1)
+
+    const expected = createHmac("sha256", SECRET).update(payload).digest("hex")
+    if (signature !== expected) return false
+
+    const timestamp = parseInt(payload.split(":")[0], 10)
+    if (Date.now() - timestamp > TOKEN_EXPIRY_MS) return false
+
+    return true
   } catch {
-    return []
-  }
-}
-
-async function saveTokens(tokens: StoredToken[]) {
-  await writeFile(TOKENS_FILE, JSON.stringify(tokens, null, 2))
-}
-
-export async function createToken(): Promise<string> {
-  const token = randomBytes(32).toString("hex")
-  const tokens = await getTokens()
-
-  const validTokens = tokens.filter(
-    (t) => Date.now() - t.createdAt < TOKEN_EXPIRY_MS
-  )
-
-  validTokens.push({ token, createdAt: Date.now() })
-  await saveTokens(validTokens)
-
-  return token
-}
-
-export async function validateToken(token: string): Promise<boolean> {
-  const tokens = await getTokens()
-  const found = tokens.find((t) => t.token === token)
-
-  if (!found) return false
-  if (Date.now() - found.createdAt > TOKEN_EXPIRY_MS) {
-    const valid = tokens.filter((t) => t.token !== token)
-    await saveTokens(valid)
     return false
   }
-
-  return true
-}
-
-export async function revokeToken(token: string) {
-  const tokens = await getTokens()
-  await saveTokens(tokens.filter((t) => t.token !== token))
 }

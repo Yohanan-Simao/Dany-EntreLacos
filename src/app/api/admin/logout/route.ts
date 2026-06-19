@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { validateToken, revokeToken } from "@/lib/auth"
+import { validateToken } from "@/lib/auth"
 
 export async function POST(request: Request) {
   const auth = request.headers.get("authorization")
@@ -8,12 +8,11 @@ export async function POST(request: Request) {
   }
 
   const token = auth.slice(7)
-  const valid = await validateToken(token)
+  const valid = validateToken(token)
 
   if (!valid) {
     return NextResponse.json({ error: "Token inválido" }, { status: 401 })
   }
 
-  await revokeToken(token)
   return NextResponse.json({ success: true })
 }

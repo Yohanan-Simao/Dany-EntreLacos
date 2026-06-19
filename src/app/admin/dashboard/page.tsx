@@ -7,6 +7,7 @@ import { Upload, Trash2, LogOut, ImageIcon, Move, X, Package, Sparkles } from "l
 
 type ImageData = {
   id: number
+  publicId: string
   url: string
   title: string
   description: string
@@ -84,7 +85,7 @@ export default function AdminDashboard() {
     setUploading(false)
   }
 
-  async function handleDelete(id: number) {
+  async function handleDelete(img: ImageData) {
     if (!confirm("Excluir esta imagem?")) return
     await fetch("/api/admin/upload", {
       method: "DELETE",
@@ -92,7 +93,7 @@ export default function AdminDashboard() {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ id }),
+      body: JSON.stringify({ publicId: img.publicId }),
     })
     await fetchImages()
   }
@@ -111,7 +112,7 @@ export default function AdminDashboard() {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ id: adjusting.id, cropX, cropY }),
+      body: JSON.stringify({ publicId: adjusting.publicId, cropX, cropY }),
     })
     setAdjusting(null)
     await fetchImages()
@@ -276,7 +277,7 @@ export default function AdminDashboard() {
                       <Move size={16} />
                     </button>
                     <button
-                      onClick={() => handleDelete(img.id)}
+                      onClick={() => handleDelete(img)}
                       className="p-2 rounded-full bg-black/50 text-white hover:bg-red-500 transition-colors"
                       title="Excluir"
                     >

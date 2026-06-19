@@ -24,7 +24,7 @@ export default function NovidadesSection() {
         setImages(
           data
             .filter((img: { type?: string }) => (img.type || "produto") === "novidade")
-            .slice(-4)
+            .slice(0, 4)
         )
       )
   }, [])
