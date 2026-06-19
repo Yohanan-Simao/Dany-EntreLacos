@@ -89,15 +89,23 @@ export default function AdminDashboard() {
         setFile(null)
         setPreview(null)
         await fetchImages()
+        setUploadError("")
       } else {
-        const data = await res.json()
-        setUploadError(data.error || "Erro ao enviar")
+        const text = await res.text()
+        try {
+          const data = JSON.parse(text)
+          setUploadError(data.error || `Erro ${res.status}`)
+        } catch {
+          setUploadError(`Erro ${res.status}: ${text.slice(0, 200)}`)
+        }
       }
     } catch (err) {
       clearTimeout(timeout)
-      setUploadError(err instanceof DOMException && err.name === "AbortError"
-        ? "Tempo limite excedido. Verifique sua conexão."
-        : "Erro de conexão com o servidor.")
+      if (err instanceof DOMException && err.name === "AbortError") {
+        setUploadError("Tempo limite excedido. Imagem muito grande?")
+      } else {
+        setUploadError("Erro de conexão com o servidor.")
+      }
     }
 
     setUploading(false)

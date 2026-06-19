@@ -2,6 +2,10 @@ import { NextResponse } from "next/server"
 import { validateToken } from "@/lib/auth"
 import { uploadImage, deleteImage, updateImageMeta, listImages } from "@/lib/cloudinary"
 
+if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+  console.error("Cloudinary não configurado! Verifique as variáveis de ambiente.")
+}
+
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"]
 
