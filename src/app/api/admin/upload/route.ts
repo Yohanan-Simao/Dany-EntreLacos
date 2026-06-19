@@ -45,6 +45,10 @@ export async function POST(request: Request) {
   }
 
   try {
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      return NextResponse.json({ error: "Cloudinary não configurado. Faltam variáveis de ambiente." }, { status: 500 })
+    }
+
     const buffer = Buffer.from(await file.arrayBuffer())
 
     const { url, publicId } = await uploadImage(buffer, `${Date.now()}-${file.name}`, {
@@ -58,8 +62,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ id: Date.now(), url, publicId, title, description, type, cropX: 50, cropY: 50 })
   } catch (err) {
     const message = err instanceof Error ? err.message : "Erro desconhecido no upload"
-    console.error("Upload error:", err)
-    return NextResponse.json({ error: message }, { status: 500 })
+    const stack = err instanceof Error ? err.stack : ""
+    console.error("Upload error:", message, stack)
+    return NextResponse.json({ error: `Cloudinary: ${message}` }, { status: 500 })
   }
 }
 

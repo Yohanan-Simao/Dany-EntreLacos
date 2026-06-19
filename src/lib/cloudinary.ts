@@ -44,24 +44,20 @@ export async function uploadImage(
   filename: string,
   meta: ImageMeta
 ): Promise<{ url: string; publicId: string }> {
-  return new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        folder: "dany-entrelacos",
-        public_id: filename.replace(/[^a-zA-Z0-9_-]/g, "_"),
-        resource_type: "image",
-        context: encodeContext(meta),
-        transformation: [
-          { width: 800, height: 800, crop: "limit", quality: "auto:good" },
-        ],
-      },
-      (error, result) => {
-        if (error || !result) reject(error || new Error("Upload failed"))
-        else resolve({ url: result.secure_url, publicId: result.public_id })
-      }
-    )
-    uploadStream.end(buffer)
+  const base64 = buffer.toString("base64")
+  const dataUri = `data:image/jpeg;base64,${base64}`
+
+  const result = await cloudinary.uploader.upload(dataUri, {
+    folder: "dany-entrelacos",
+    public_id: filename.replace(/[^a-zA-Z0-9_-]/g, "_"),
+    resource_type: "image",
+    context: encodeContext(meta),
+    transformation: [
+      { width: 800, height: 800, crop: "limit", quality: "auto:good" },
+    ],
   })
+
+  return { url: result.secure_url, publicId: result.public_id }
 }
 
 export async function updateImageMeta(publicId: string, meta: Partial<ImageMeta>) {
