@@ -26,6 +26,7 @@ export default function AdminDashboard() {
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState("")
   const [adjusting, setAdjusting] = useState<ImageData | null>(null)
   const [cropX, setCropX] = useState(50)
   const [cropY, setCropY] = useState(50)
@@ -62,24 +63,41 @@ export default function AdminDashboard() {
     if (!file || !title || !token) return
 
     setUploading(true)
+    setUploadError("")
+
     const formData = new FormData()
     formData.append("image", file)
     formData.append("title", title)
     formData.append("description", description)
     formData.append("type", tab)
 
-    const res = await fetch("/api/admin/upload", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: formData,
-    })
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 30000)
 
-    if (res.ok) {
-      setTitle("")
-      setDescription("")
-      setFile(null)
-      setPreview(null)
-      await fetchImages()
+    try {
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+        signal: controller.signal,
+      })
+      clearTimeout(timeout)
+
+      if (res.ok) {
+        setTitle("")
+        setDescription("")
+        setFile(null)
+        setPreview(null)
+        await fetchImages()
+      } else {
+        const data = await res.json()
+        setUploadError(data.error || "Erro ao enviar")
+      }
+    } catch (err) {
+      clearTimeout(timeout)
+      setUploadError(err instanceof DOMException && err.name === "AbortError"
+        ? "Tempo limite excedido. Verifique sua conexão."
+        : "Erro de conexão com o servidor.")
     }
 
     setUploading(false)
@@ -239,6 +257,10 @@ export default function AdminDashboard() {
             </div>
             <p className="text-xs text-muted mt-1.5">Formatos: JPEG, PNG, WebP, AVIF — Máx 5MB</p>
           </div>
+
+          {uploadError && (
+            <p className="text-sm text-red-500 mb-4">{uploadError}</p>
+          )}
 
           <button
             type="submit"
