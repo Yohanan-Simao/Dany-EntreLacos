@@ -69,8 +69,13 @@ export async function POST(request: Request) {
 }
 
 export async function GET() {
-  const images = await listImages()
-  return NextResponse.json(images)
+  try {
+    const images = await listImages()
+    return NextResponse.json(images)
+  } catch (err) {
+    console.error("List error:", err)
+    return NextResponse.json({ error: "Erro ao listar imagens" }, { status: 500 })
+  }
 }
 
 export async function PATCH(request: Request) {
