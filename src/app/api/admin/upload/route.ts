@@ -40,17 +40,23 @@ export async function POST(request: Request) {
     )
   }
 
-  const buffer = Buffer.from(await file.arrayBuffer())
+  try {
+    const buffer = Buffer.from(await file.arrayBuffer())
 
-  const { url, publicId } = await uploadImage(buffer, `${Date.now()}-${file.name}`, {
-    title,
-    description: description || "",
-    type,
-    cropX: 50,
-    cropY: 50,
-  })
+    const { url, publicId } = await uploadImage(buffer, `${Date.now()}-${file.name}`, {
+      title,
+      description: description || "",
+      type,
+      cropX: 50,
+      cropY: 50,
+    })
 
-  return NextResponse.json({ id: Date.now(), url, publicId, title, description, type, cropX: 50, cropY: 50 })
+    return NextResponse.json({ id: Date.now(), url, publicId, title, description, type, cropX: 50, cropY: 50 })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Erro desconhecido no upload"
+    console.error("Upload error:", err)
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
 }
 
 export async function GET() {
