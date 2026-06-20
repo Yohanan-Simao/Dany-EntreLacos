@@ -71,9 +71,17 @@ export async function updateImageMeta(publicId: string, meta: Partial<ImageMeta>
   const existing = await cloudinary.api.resource(publicId, { context: true })
   const current = decodeContext(existing.context)
   const merged = { ...current, ...meta }
-  await cloudinary.uploader.explicit(publicId, {
-    type: "upload",
-    context: encodeContext(merged),
+  await cloudinary.api.update(publicId, {
+    resource_type: "image",
+    context: {
+      custom: {
+        title: merged.title,
+        description: merged.description,
+        type: merged.type,
+        cropX: String(merged.cropX),
+        cropY: String(merged.cropY),
+      },
+    },
   })
 }
 

@@ -139,11 +139,7 @@ export default function AdminDashboard() {
   }
 
   async function saveCrop() {
-    if (!adjusting || !token) {
-      alert("ajustando=" + !!adjusting + " token=" + !!token)
-      return
-    }
-    alert(`Salvando: publicId=${adjusting.publicId} cropX=${cropX} cropY=${cropY}`)
+    if (!adjusting || !token) return
     const res = await fetch("/api/admin/upload", {
       method: "PATCH",
       headers: {
@@ -155,12 +151,12 @@ export default function AdminDashboard() {
     setAdjusting(null)
     if (!res.ok) {
       const data = await res.json().catch(() => ({}))
-      alert("Erro no servidor: " + (data.error || res.status))
+      alert(data.error || "Erro ao salvar posição")
       return
     }
     setImages((prev) =>
       prev.map((img) =>
-        img.publicId === adjusting.publicId ? { ...img, cropX, cropY } : img
+        img.publicId === adjusting!.publicId ? { ...img, cropX, cropY } : img
       )
     )
   }
