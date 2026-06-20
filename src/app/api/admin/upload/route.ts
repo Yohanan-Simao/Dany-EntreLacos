@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { validateToken } from "@/lib/auth"
 import { uploadImage, deleteImage, updateImageMeta, listImages } from "@/lib/cloudinary"
-import { getAllImages, addImage, removeImage, updateImageCrop } from "@/lib/images-store"
+import { getAllImages } from "@/lib/images-store"
 
 if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
   console.error("Cloudinary não configurado! Verifique as variáveis de ambiente.")
@@ -60,10 +60,7 @@ export async function POST(request: Request) {
       cropY: 50,
     }, file.type)
 
-    const newImage = { id: Date.now(), url, publicId, title, description, type, cropX: 50, cropY: 50, createdAt: new Date().toISOString() }
-    addImage(newImage)
-
-    return NextResponse.json(newImage)
+    return NextResponse.json({ id: Date.now(), url, publicId, title, description, type, cropX: 50, cropY: 50 })
   } catch (err) {
     const message = err instanceof Error ? err.message : "Erro desconhecido no upload"
     const stack = err instanceof Error ? err.stack : ""
@@ -94,7 +91,6 @@ export async function PATCH(request: Request) {
   }
 
   await updateImageMeta(publicId, { cropX, cropY })
-  updateImageCrop(publicId, cropX, cropY)
   return NextResponse.json({ success: true })
 }
 
@@ -109,6 +105,5 @@ export async function DELETE(request: Request) {
   }
 
   await deleteImage(publicId)
-  removeImage(publicId)
   return NextResponse.json({ success: true })
 }

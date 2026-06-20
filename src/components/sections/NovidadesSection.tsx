@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import { Sparkles } from "lucide-react"
@@ -15,7 +15,32 @@ type NovidadeImage = {
 }
 
 export default function NovidadesSection({ initialImages = [] }: { initialImages?: NovidadeImage[] }) {
-  const [images] = useState<NovidadeImage[]>(initialImages)
+  const [images, setImages] = useState<NovidadeImage[]>(initialImages)
+
+  useEffect(() => {
+    async function loadImages() {
+      try {
+        const res = await fetch(`/api/admin/upload?t=${Date.now()}`, { cache: "no-store" })
+        const data = await res.json()
+        if (Array.isArray(data)) {
+          setImages(
+            data
+              .filter((img: { type?: string }) => (img.type || "produto") === "novidade")
+              .slice(0, 4)
+          )
+        }
+      } catch {}
+    }
+
+    loadImages()
+
+    function onPageShow(e: PageTransitionEvent) {
+      if (e.persisted) loadImages()
+    }
+
+    window.addEventListener("pageshow", onPageShow)
+    return () => window.removeEventListener("pageshow", onPageShow)
+  }, [])
 
   if (images.length === 0) return null
 

@@ -11,13 +11,13 @@ import ContatoSection from "@/components/sections/ContatoSection";
 import { getAllImages } from "@/lib/images-store";
 
 type SectionImage = {
-  id: number
-  url: string
-  title: string
-  description: string
-  cropX: number
-  cropY: number
-}
+  id: number;
+  url: string;
+  title: string;
+  description: string;
+  cropX: number;
+  cropY: number;
+};
 
 export default async function Home() {
   let novidades: SectionImage[] = [];
