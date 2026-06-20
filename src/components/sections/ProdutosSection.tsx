@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import { Sparkles, Crown, Gift } from "lucide-react"
@@ -35,7 +35,48 @@ const products = [
 ]
 
 export default function ProdutosSection({ initialImages = [] }: { initialImages?: GalleryImage[] }) {
-  const [gallery] = useState<GalleryImage[]>(initialImages)
+  const [gallery, setGallery] = useState<GalleryImage[]>(initialImages)
+
+  useEffect(() => {
+    let polling: number
+
+    async function loadImages() {
+      try {
+        const res = await fetch(`/api/admin/upload?t=${Date.now()}`, { cache: "no-store" })
+        const data = await res.json()
+        if (Array.isArray(data)) {
+          setGallery(
+            data
+              .filter((img: { type?: string }) => (img.type || "produto") === "produto")
+              .slice(0, 4)
+          )
+        }
+      } catch {}
+    }
+
+    loadImages()
+
+    function onPageShow(e: PageTransitionEvent) {
+      if (e.persisted) loadImages()
+    }
+
+    function onVisibilityChange() {
+      if (document.visibilityState === "visible") loadImages()
+    }
+
+    window.addEventListener("pageshow", onPageShow)
+    document.addEventListener("visibilitychange", onVisibilityChange)
+
+    polling = window.setInterval(() => {
+      if (document.visibilityState === "visible") loadImages()
+    }, 5000)
+
+    return () => {
+      window.removeEventListener("pageshow", onPageShow)
+      document.removeEventListener("visibilitychange", onVisibilityChange)
+      clearInterval(polling)
+    }
+  }, [])
 
   return (
     <section id="produtos" className="py-24 bg-background">

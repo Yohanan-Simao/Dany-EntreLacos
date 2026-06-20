@@ -18,6 +18,8 @@ export default function NovidadesSection({ initialImages = [] }: { initialImages
   const [images, setImages] = useState<NovidadeImage[]>(initialImages)
 
   useEffect(() => {
+    let polling: number
+
     async function loadImages() {
       try {
         const res = await fetch(`/api/admin/upload?t=${Date.now()}`, { cache: "no-store" })
@@ -38,8 +40,22 @@ export default function NovidadesSection({ initialImages = [] }: { initialImages
       if (e.persisted) loadImages()
     }
 
+    function onVisibilityChange() {
+      if (document.visibilityState === "visible") loadImages()
+    }
+
     window.addEventListener("pageshow", onPageShow)
-    return () => window.removeEventListener("pageshow", onPageShow)
+    document.addEventListener("visibilitychange", onVisibilityChange)
+
+    polling = window.setInterval(() => {
+      if (document.visibilityState === "visible") loadImages()
+    }, 5000)
+
+    return () => {
+      window.removeEventListener("pageshow", onPageShow)
+      document.removeEventListener("visibilitychange", onVisibilityChange)
+      clearInterval(polling)
+    }
   }, [])
 
   if (images.length === 0) return null
