@@ -30,7 +30,7 @@ async function readBlob(): Promise<StoredImage[] | null> {
 async function writeBlob(images: StoredImage[]) {
   await put(BLOB_KEY, JSON.stringify(images), {
     contentType: "application/json",
-    access: "private",
+      access: "public",
     addRandomSuffix: false,
   })
 }
