@@ -9,9 +9,8 @@ export function proxy(request: NextRequest) {
   response.headers.set("X-XSS-Protection", "1; mode=block")
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin")
 
-  if (request.nextUrl.pathname.startsWith("/admin")) {
-    response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate")
-  }
+  response.headers.set("Cache-Control", "no-store, max-age=0")
+  response.headers.set("Vary", "*")
 
   return response
 }
