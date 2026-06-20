@@ -17,22 +17,39 @@ type StoredImage = {
 
 let memoryCache: StoredImage[] | null = null
 
+async function readBlob(): Promise<StoredImage[] | null> {
+  try {
+    const { blobs } = await list({ prefix: BLOB_KEY })
+    if (blobs.length === 0) return null
+    const res = await fetch(blobs[0].url)
+    if (!res.ok) return null
+    return await res.json()
+  } catch {
+    return null
+  }
+}
+
+async function writeBlob(images: StoredImage[]) {
+  await put(BLOB_KEY, JSON.stringify(images), {
+    contentType: "application/json",
+    access: "private",
+    addRandomSuffix: false,
+  })
+}
+
 function isVercel() {
   return process.env.VERCEL === "1"
 }
 
 export async function getAllImages(): Promise<StoredImage[]> {
   if (isVercel()) {
+    const cached = await readBlob()
+    if (cached !== null) return cached
     try {
-      const { blobs } = await list({ prefix: BLOB_KEY })
-      if (blobs.length === 0) {
-        const images = await listCloudinaryImages()
-        const mapped = images as StoredImage[]
-        await writeBlob(mapped)
-        return mapped
-      }
-      const res = await fetch(blobs[0].url)
-      return await res.json()
+      const cloudinaryImages = await listCloudinaryImages()
+      const mapped = cloudinaryImages as StoredImage[]
+      await writeBlob(mapped)
+      return mapped
     } catch {
       return []
     }
@@ -48,51 +65,41 @@ export async function getAllImages(): Promise<StoredImage[]> {
   }
 }
 
-async function writeBlob(images: StoredImage[]) {
-  try {
-    await put(BLOB_KEY, JSON.stringify(images), {
-      contentType: "application/json",
-      access: "private",
-      addRandomSuffix: false,
-    })
-  } catch {
-    // blob write failed — data is still in Cloudinary
-  }
-}
-
-async function updateBlob(mutate: (images: StoredImage[]) => StoredImage[]) {
-  if (!isVercel()) return
-  try {
-    const current = await getAllImages()
-    const updated = mutate(current)
-    await writeBlob(updated)
-    memoryCache = updated
-  } catch {
-    // silent
-  }
-}
-
 export async function addImage(image: StoredImage) {
   if (isVercel()) {
-    await updateBlob((current) => [image, ...current])
+    const current = await readBlob()
+    const updated = [image, ...(current || [])]
+    await writeBlob(updated)
+    memoryCache = updated
+  } else {
+    memoryCache = [image, ...(memoryCache || [])]
   }
-  memoryCache = [image, ...(memoryCache || [])]
 }
 
 export async function removeImage(publicId: string) {
   if (isVercel()) {
-    await updateBlob((current) => current.filter((img) => img.publicId !== publicId))
+    const current = await readBlob()
+    if (current === null) return
+    const updated = current.filter((img) => img.publicId !== publicId)
+    await writeBlob(updated)
+    memoryCache = updated
+  } else {
+    memoryCache = (memoryCache || []).filter((img) => img.publicId !== publicId)
   }
-  memoryCache = (memoryCache || []).filter((img) => img.publicId !== publicId)
 }
 
 export async function updateImageCrop(publicId: string, cropX: number, cropY: number) {
   if (isVercel()) {
-    await updateBlob((current) =>
-      current.map((img) => (img.publicId === publicId ? { ...img, cropX, cropY } : img))
+    const current = await readBlob()
+    if (current === null) return
+    const updated = current.map((img) =>
+      img.publicId === publicId ? { ...img, cropX, cropY } : img
+    )
+    await writeBlob(updated)
+    memoryCache = updated
+  } else {
+    memoryCache = (memoryCache || []).map((img) =>
+      img.publicId === publicId ? { ...img, cropX, cropY } : img
     )
   }
-  memoryCache = (memoryCache || []).map((img) =>
-    img.publicId === publicId ? { ...img, cropX, cropY } : img
-  )
 }
