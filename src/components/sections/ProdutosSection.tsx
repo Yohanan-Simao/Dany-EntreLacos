@@ -40,13 +40,15 @@ export default function ProdutosSection() {
   useEffect(() => {
     fetch("/api/admin/upload")
       .then((res) => res.json())
-      .then((data) =>
+      .then((data) => {
+        if (!Array.isArray(data)) return
         setGallery(
           data
             .filter((img: { type?: string }) => (img.type || "produto") === "produto")
             .slice(0, 4)
         )
-      )
+      })
+      .catch(() => {})
   }, [])
 
   return (

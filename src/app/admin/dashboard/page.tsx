@@ -45,10 +45,17 @@ export default function AdminDashboard() {
   }, [token])
 
   async function fetchImages() {
-    const res = await fetch("/api/admin/upload")
-    const data = await res.json()
-    setImages(data)
+    try {
+      const res = await fetch("/api/admin/upload")
+      const data = await res.json()
+      if (Array.isArray(data)) {
+        setImages(data)
+      }
+    } catch {
+      // API error — keep empty state
+    }
   }
+
 
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0]
@@ -173,7 +180,8 @@ export default function AdminDashboard() {
     router.push("/admin")
   }
 
-  const filteredImages = images.filter((img) => (img.type || "produto") === tab).toReversed()
+  const imageList = Array.isArray(images) ? images : []
+  const filteredImages = [...imageList.filter((img) => (img.type || "produto") === tab)].reverse()
 
   return (
     <div className="min-h-screen bg-background">

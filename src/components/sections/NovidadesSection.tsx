@@ -20,13 +20,15 @@ export default function NovidadesSection() {
   useEffect(() => {
     fetch("/api/admin/upload")
       .then((res) => res.json())
-      .then((data) =>
+      .then((data) => {
+        if (!Array.isArray(data)) return
         setImages(
           data
             .filter((img: { type?: string }) => (img.type || "produto") === "novidade")
             .slice(0, 4)
         )
-      )
+      })
+      .catch(() => {})
   }, [])
 
   if (images.length === 0) return null
