@@ -73,8 +73,9 @@ export async function GET() {
     const images = await listImages()
     return NextResponse.json(images)
   } catch (err) {
-    console.error("List error:", err)
-    return NextResponse.json({ error: "Erro ao listar imagens" }, { status: 500 })
+    const message = err instanceof Error ? err.message : "Erro desconhecido"
+    console.error("List error:", message)
+    return NextResponse.json({ error: `Erro ao listar imagens: ${message}` }, { status: 500 })
   }
 }
 
