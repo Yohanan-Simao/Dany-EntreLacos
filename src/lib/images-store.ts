@@ -3,7 +3,7 @@ import { listImages as listCloudinaryImages } from "./cloudinary"
 
 const BLOB_KEY = "dany-entrelacos-images.json"
 
-type StoredImage = {
+export type StoredImage = {
   id: number
   publicId: string
   url: string
@@ -14,8 +14,6 @@ type StoredImage = {
   cropY: number
   createdAt: string
 }
-
-let memoryCache: StoredImage[] | null = null
 
 async function readBlob(): Promise<StoredImage[] | null> {
   try {
@@ -46,60 +44,42 @@ export async function getAllImages(): Promise<StoredImage[]> {
     const cached = await readBlob()
     if (cached !== null) return cached
     try {
-      const cloudinaryImages = await listCloudinaryImages()
-      const mapped = cloudinaryImages as StoredImage[]
+      const images = await listCloudinaryImages()
+      const mapped = images as StoredImage[]
       await writeBlob(mapped)
       return mapped
     } catch {
       return []
     }
   }
-
-  if (memoryCache) return memoryCache
   try {
-    const images = await listCloudinaryImages()
-    memoryCache = images as StoredImage[]
-    return memoryCache
+    return await listCloudinaryImages() as StoredImage[]
   } catch {
     return []
   }
 }
 
 export async function addImage(image: StoredImage) {
-  if (isVercel()) {
-    const current = await readBlob()
-    const updated = [image, ...(current || [])]
-    await writeBlob(updated)
-    memoryCache = updated
-  } else {
-    memoryCache = [image, ...(memoryCache || [])]
-  }
+  if (!isVercel()) return
+  const current = await readBlob()
+  const updated = [image, ...(current || [])]
+  await writeBlob(updated)
 }
 
 export async function removeImage(publicId: string) {
-  if (isVercel()) {
-    const current = await readBlob()
-    if (current === null) return
-    const updated = current.filter((img) => img.publicId !== publicId)
-    await writeBlob(updated)
-    memoryCache = updated
-  } else {
-    memoryCache = (memoryCache || []).filter((img) => img.publicId !== publicId)
-  }
+  if (!isVercel()) return
+  const current = await readBlob()
+  if (!current) return
+  await writeBlob(current.filter((img) => img.publicId !== publicId))
 }
 
 export async function updateImageCrop(publicId: string, cropX: number, cropY: number) {
-  if (isVercel()) {
-    const current = await readBlob()
-    if (current === null) return
-    const updated = current.map((img) =>
+  if (!isVercel()) return
+  const current = await readBlob()
+  if (!current) return
+  await writeBlob(
+    current.map((img) =>
       img.publicId === publicId ? { ...img, cropX, cropY } : img
     )
-    await writeBlob(updated)
-    memoryCache = updated
-  } else {
-    memoryCache = (memoryCache || []).map((img) =>
-      img.publicId === publicId ? { ...img, cropX, cropY } : img
-    )
-  }
+  )
 }
