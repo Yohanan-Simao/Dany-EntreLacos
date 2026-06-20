@@ -152,8 +152,13 @@ export default function AdminDashboard() {
     if (!res.ok) {
       const data = await res.json().catch(() => ({}))
       alert(data.error || "Erro ao salvar posição")
+      return
     }
-    await fetchImages()
+    setImages((prev) =>
+      prev.map((img) =>
+        img.publicId === adjusting.publicId ? { ...img, cropX, cropY } : img
+      )
+    )
   }
 
   function handleMouseDown(e: React.MouseEvent) {
