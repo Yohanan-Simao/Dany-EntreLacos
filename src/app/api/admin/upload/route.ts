@@ -57,7 +57,7 @@ export async function POST(request: Request) {
       type,
       cropX: 50,
       cropY: 50,
-    })
+    }, file.type)
 
     return NextResponse.json({ id: Date.now(), url, publicId, title, description, type, cropX: 50, cropY: 50 })
   } catch (err) {

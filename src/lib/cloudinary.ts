@@ -42,10 +42,11 @@ export type { ImageMeta }
 export async function uploadImage(
   buffer: Buffer,
   filename: string,
-  meta: ImageMeta
+  meta: ImageMeta,
+  mimeType: string = "image/jpeg"
 ): Promise<{ url: string; publicId: string }> {
   const base64 = buffer.toString("base64")
-  const dataUri = `data:image/jpeg;base64,${base64}`
+  const dataUri = `data:${mimeType};base64,${base64}`
 
   const result = await cloudinary.uploader.upload(dataUri, {
     folder: "dany-entrelacos",
