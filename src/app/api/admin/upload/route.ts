@@ -93,9 +93,13 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "publicId é obrigatório" }, { status: 400 })
   }
 
-  await updateImageMeta(publicId, { cropX, cropY })
-  updateImageCrop(publicId, cropX, cropY)
-  return NextResponse.json({ success: true })
+  try {
+    await updateImageMeta(publicId, { cropX, cropY })
+    return NextResponse.json({ success: true })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Erro desconhecido"
+    return NextResponse.json({ error: `Cloudinary: ${message}` }, { status: 500 })
+  }
 }
 
 export async function DELETE(request: Request) {

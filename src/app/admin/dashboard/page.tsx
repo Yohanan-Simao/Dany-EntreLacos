@@ -140,7 +140,7 @@ export default function AdminDashboard() {
 
   async function saveCrop() {
     if (!adjusting || !token) return
-    await fetch("/api/admin/upload", {
+    const res = await fetch("/api/admin/upload", {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -149,6 +149,10 @@ export default function AdminDashboard() {
       body: JSON.stringify({ publicId: adjusting.publicId, cropX, cropY }),
     })
     setAdjusting(null)
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}))
+      alert(data.error || "Erro ao salvar posição")
+    }
     await fetchImages()
   }
 
