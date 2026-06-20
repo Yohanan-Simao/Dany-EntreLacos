@@ -15,6 +15,10 @@ export type StoredImage = {
   createdAt: string
 }
 
+function useBlob() {
+  return !!process.env.BLOB_READ_WRITE_TOKEN
+}
+
 async function readBlob(): Promise<StoredImage[] | null> {
   try {
     const { blobs } = await list({ prefix: BLOB_KEY })
@@ -28,19 +32,19 @@ async function readBlob(): Promise<StoredImage[] | null> {
 }
 
 async function writeBlob(images: StoredImage[]) {
-  await put(BLOB_KEY, JSON.stringify(images), {
-    contentType: "application/json",
+  try {
+    await put(BLOB_KEY, JSON.stringify(images), {
+      contentType: "application/json",
       access: "public",
-    addRandomSuffix: false,
-  })
-}
-
-function isVercel() {
-  return process.env.VERCEL === "1"
+      addRandomSuffix: false,
+    })
+  } catch {
+    // blob write failed — data is still in Cloudinary
+  }
 }
 
 export async function getAllImages(): Promise<StoredImage[]> {
-  if (isVercel()) {
+  if (useBlob()) {
     const cached = await readBlob()
     if (cached !== null) return cached
     try {
@@ -60,21 +64,20 @@ export async function getAllImages(): Promise<StoredImage[]> {
 }
 
 export async function addImage(image: StoredImage) {
-  if (!isVercel()) return
+  if (!useBlob()) return
   const current = await readBlob()
-  const updated = [image, ...(current || [])]
-  await writeBlob(updated)
+  await writeBlob([image, ...(current || [])])
 }
 
 export async function removeImage(publicId: string) {
-  if (!isVercel()) return
+  if (!useBlob()) return
   const current = await readBlob()
   if (!current) return
   await writeBlob(current.filter((img) => img.publicId !== publicId))
 }
 
 export async function updateImageCrop(publicId: string, cropX: number, cropY: number) {
-  if (!isVercel()) return
+  if (!useBlob()) return
   const current = await readBlob()
   if (!current) return
   await writeBlob(
