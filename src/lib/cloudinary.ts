@@ -20,14 +20,20 @@ function encodeContext(meta: ImageMeta): string {
     .join("|")
 }
 
-function decodeContext(ctx: Record<string, string> | undefined): ImageMeta {
-  const raw = ctx?.custom || ""
-  const pairs = raw.split("|").filter(Boolean)
+function decodeContext(ctx: Record<string, string | Record<string, string>> | undefined): ImageMeta {
+  const custom = ctx?.custom
   const meta: Record<string, string> = {}
-  for (const pair of pairs) {
-    const eq = pair.indexOf("=")
-    if (eq > 0) meta[pair.slice(0, eq)] = pair.slice(eq + 1)
+
+  if (typeof custom === "string") {
+    const pairs = custom.split("|").filter(Boolean)
+    for (const pair of pairs) {
+      const eq = pair.indexOf("=")
+      if (eq > 0) meta[pair.slice(0, eq)] = pair.slice(eq + 1)
+    }
+  } else if (custom && typeof custom === "object") {
+    Object.assign(meta, custom)
   }
+
   return {
     title: meta.title || "Sem título",
     description: meta.description || "",
@@ -83,7 +89,7 @@ export async function listImages(): Promise<(ImageMeta & { id: number; url: stri
     max_results: 100,
   })
 
-  const images = (result.resources || []).map((res: { public_id: string; secure_url: string; created_at: string; context?: Record<string, string> }) => {
+  const images = (result.resources || []).map((res: { public_id: string; secure_url: string; created_at: string; context?: Record<string, string | Record<string, string>> }) => {
     const meta = decodeContext(res.context)
     return {
       id: Date.parse(res.created_at) || Math.random(),
