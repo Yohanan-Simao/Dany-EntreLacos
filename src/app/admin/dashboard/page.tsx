@@ -91,11 +91,12 @@ export default function AdminDashboard() {
       clearTimeout(timeout)
 
       if (res.ok) {
+        const newImage = await res.json()
+        setImages((prev) => [newImage, ...prev])
         setTitle("")
         setDescription("")
         setFile(null)
         setPreview(null)
-        await fetchImages()
         setUploadError("")
       } else {
         const text = await res.text()
