@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import { Sparkles, Crown, Gift } from "lucide-react"
@@ -34,22 +34,8 @@ const products = [
   },
 ]
 
-export default function ProdutosSection() {
-  const [gallery, setGallery] = useState<GalleryImage[]>([])
-
-  useEffect(() => {
-    fetch(`/api/admin/upload?t=${Date.now()}`, { cache: "no-store" })
-      .then((res) => res.json())
-      .then((data) => {
-        if (!Array.isArray(data)) return
-        setGallery(
-          data
-            .filter((img: { type?: string }) => (img.type || "produto") === "produto")
-            .slice(0, 4)
-        )
-      })
-      .catch(() => {})
-  }, [])
+export default function ProdutosSection({ initialImages = [] }: { initialImages?: GalleryImage[] }) {
+  const [gallery] = useState<GalleryImage[]>(initialImages)
 
   return (
     <section id="produtos" className="py-24 bg-background">
@@ -84,7 +70,7 @@ export default function ProdutosSection() {
               >
                 <div className="relative aspect-square bg-gray-100">
                   <Image
-                      src={img.url}
+                    src={img.url}
                     alt={img.title}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -103,8 +89,6 @@ export default function ProdutosSection() {
             ))}
           </div>
         )}
-
-
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
           {products.map((product, index) => (

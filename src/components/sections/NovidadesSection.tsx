@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import { Sparkles } from "lucide-react"
@@ -14,22 +14,8 @@ type NovidadeImage = {
   cropY: number
 }
 
-export default function NovidadesSection() {
-  const [images, setImages] = useState<NovidadeImage[]>([])
-
-  useEffect(() => {
-    fetch(`/api/admin/upload?t=${Date.now()}`, { cache: "no-store" })
-      .then((res) => res.json())
-      .then((data) => {
-        if (!Array.isArray(data)) return
-        setImages(
-          data
-            .filter((img: { type?: string }) => (img.type || "produto") === "novidade")
-            .slice(0, 4)
-        )
-      })
-      .catch(() => {})
-  }, [])
+export default function NovidadesSection({ initialImages = [] }: { initialImages?: NovidadeImage[] }) {
+  const [images] = useState<NovidadeImage[]>(initialImages)
 
   if (images.length === 0) return null
 
