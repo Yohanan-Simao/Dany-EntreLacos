@@ -68,18 +68,11 @@ export async function uploadImage(
 }
 
 export async function updateImageMeta(publicId: string, meta: Partial<ImageMeta>) {
-  let current: ImageMeta = { title: "Sem título", description: "", type: "produto", cropX: 50, cropY: 50 }
-  try {
-    const existing = await cloudinary.api.resource(publicId, { type: "upload", context: true })
-    current = decodeContext(existing.context)
-  } catch {
-    // resource not found — use defaults
-  }
-  const merged = { ...current, ...meta }
-  await cloudinary.api.update(publicId, {
-    resource_type: "image",
-    context: encodeContext(merged),
-  })
+  await cloudinary.uploader.add_context(
+    encodeContext(meta as ImageMeta),
+    [publicId],
+    { resource_type: "image" }
+  )
 }
 
 export async function deleteImage(publicId: string) {
