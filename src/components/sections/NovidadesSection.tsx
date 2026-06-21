@@ -83,18 +83,19 @@ export default function NovidadesSection({ initialImages = [] }: { initialImages
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {images.map((img, index) => (
-            <motion.a
-              key={img.id}
-              href={`https://wa.me/5548984284149?text=${encodeURIComponent(`Olá! Vi o modelo "${img.title}" no site de vocês e tenho interesse. Poderia me passar mais informações sobre valores e opções disponíveis?`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-white rounded-2xl border border-primary/10 shadow-sm overflow-hidden group cursor-pointer hover:shadow-lg hover:border-primary/30 transition-all"
+              className="bg-white rounded-2xl border border-primary/10 shadow-sm overflow-hidden group"
             >
-              <div className="relative aspect-square bg-gray-100">
+              <a
+                href={`https://wa.me/5548984284149?text=${encodeURIComponent(`Olá! Vi o modelo "${img.title}" no site de vocês e tenho interesse. Poderia me passar mais informações sobre valores e opções disponíveis?`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block relative aspect-square bg-gray-100 overflow-hidden"
+              >
                 <Image
                   src={img.url}
                   alt={img.title}
@@ -102,23 +103,28 @@ export default function NovidadesSection({ initialImages = [] }: { initialImages
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                   style={{ objectPosition: `${img.cropX}% ${img.cropY}%` }}
                 />
-                <div className="absolute top-2 left-2 flex items-center gap-1 bg-primary text-white text-xs font-medium px-2.5 py-1 rounded-full">
+                <div className="absolute top-2 left-2 flex items-center gap-1 bg-primary text-white text-xs font-medium px-2.5 py-1 rounded-full pointer-events-none">
                   <Sparkles size={12} />
                   Novo
                 </div>
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                  <span className="text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity bg-primary/80 rounded-full px-4 py-2">
-                    Solicitar via WhatsApp
-                  </span>
+              </a>
+              <div className="p-4 flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <h3 className="font-semibold text-sm truncate">{img.title}</h3>
+                  {img.description && (
+                    <p className="text-xs text-muted mt-1 truncate">{img.description}</p>
+                  )}
                 </div>
+                <a
+                  href={`https://wa.me/5548984284149?text=${encodeURIComponent(`Olá! Vi o modelo "${img.title}" no site de vocês e tenho interesse. Poderia me passar mais informações sobre valores e opções disponíveis?`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="shrink-0 text-xs font-semibold text-primary hover:text-primary-dark transition-colors whitespace-nowrap"
+                >
+                  Solicitar
+                </a>
               </div>
-              <div className="p-4">
-                <h3 className="font-semibold text-sm">{img.title}</h3>
-                {img.description && (
-                  <p className="text-xs text-muted mt-1">{img.description}</p>
-                )}
-              </div>
-            </motion.a>
+            </motion.div>
           ))}
         </div>
       </div>
