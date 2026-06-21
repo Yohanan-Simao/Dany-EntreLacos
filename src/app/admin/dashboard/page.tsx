@@ -161,22 +161,40 @@ export default function AdminDashboard() {
     )
   }
 
-  function handleMouseDown(e: React.MouseEvent) {
+  function startDrag(clientX: number, clientY: number) {
     setDragging(true)
-    dragStart.current = { x: e.clientX, y: e.clientY, cx: cropX, cy: cropY }
+    dragStart.current = { x: clientX, y: clientY, cx: cropX, cy: cropY }
   }
 
-  function handleMouseMove(e: React.MouseEvent) {
+  function moveDrag(clientX: number, clientY: number) {
     if (!dragging || !containerRef.current) return
     const rect = containerRef.current.getBoundingClientRect()
-    const dx = ((e.clientX - dragStart.current.x) / rect.width) * 100
-    const dy = ((e.clientY - dragStart.current.y) / rect.height) * 100
+    const dx = ((clientX - dragStart.current.x) / rect.width) * 100
+    const dy = ((clientY - dragStart.current.y) / rect.height) * 100
     setCropX(Math.max(0, Math.min(100, dragStart.current.cx + dx)))
     setCropY(Math.max(0, Math.min(100, dragStart.current.cy + dy)))
   }
 
-  function handleMouseUp() {
+  function endDrag() {
     setDragging(false)
+  }
+
+  function handleMouseDown(e: React.MouseEvent) {
+    startDrag(e.clientX, e.clientY)
+  }
+
+  function handleMouseMove(e: React.MouseEvent) {
+    moveDrag(e.clientX, e.clientY)
+  }
+
+  function handleTouchStart(e: React.TouchEvent) {
+    const t = e.touches[0]
+    startDrag(t.clientX, t.clientY)
+  }
+
+  function handleTouchMove(e: React.TouchEvent) {
+    const t = e.touches[0]
+    moveDrag(t.clientX, t.clientY)
   }
 
   async function handleLogout() {
@@ -316,7 +334,7 @@ export default function AdminDashboard() {
                     className="object-cover"
                     style={{ objectPosition: `${img.cropX}% ${img.cropY}%` }}
                   />
-                  <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                  <div className="absolute top-2 right-2 flex gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all">
                     <button
                       onClick={() => openAdjust(img)}
                       className="p-2 rounded-full bg-black/50 text-white hover:bg-primary transition-colors"
@@ -366,12 +384,14 @@ export default function AdminDashboard() {
 
             <div
               ref={containerRef}
-              className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 cursor-grab active:cursor-grabbing mb-4 select-none"
+              className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 cursor-grab active:cursor-grabbing mb-4 select-none touch-none"
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
-              style={{ touchAction: "none" }}
+              onMouseUp={endDrag}
+              onMouseLeave={endDrag}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={endDrag}
             >
               <Image
                 src={adjusting.url}
