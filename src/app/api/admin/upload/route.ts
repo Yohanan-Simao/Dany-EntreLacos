@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { validateToken } from "@/lib/auth"
-import { uploadImage, deleteImage, updateImageMeta, listImages } from "@/lib/cloudinary"
+import { uploadImage, deleteImage, updateImageMeta, listImages, type ImageMeta } from "@/lib/cloudinary"
 import { getAllImages, addImage, removeImage, updateImageCrop } from "@/lib/images-store"
 
 if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
@@ -88,13 +88,21 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
   }
 
-  const { publicId, cropX, cropY } = await request.json()
+  const body = await request.json()
+  const { publicId, cropX, cropY, title, description, type } = body
   if (!publicId) {
     return NextResponse.json({ error: "publicId é obrigatório" }, { status: 400 })
   }
 
+  const meta: Partial<ImageMeta> = {}
+  if (cropX !== undefined) meta.cropX = cropX
+  if (cropY !== undefined) meta.cropY = cropY
+  if (title !== undefined) meta.title = title
+  if (description !== undefined) meta.description = description
+  if (type !== undefined) meta.type = type
+
   try {
-    await updateImageMeta(publicId, { cropX, cropY })
+    await updateImageMeta(publicId, meta)
     return NextResponse.json({ success: true })
   } catch (err) {
     const message = err instanceof Error ? err.message : "Erro desconhecido"

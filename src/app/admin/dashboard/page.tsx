@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { Upload, Trash2, LogOut, ImageIcon, Move, X, Package, Sparkles } from "lucide-react"
+import { Upload, Trash2, LogOut, ImageIcon, Move, X, Package, Sparkles, Pencil } from "lucide-react"
 
 type ImageData = {
   id: number
@@ -33,6 +33,9 @@ export default function AdminDashboard() {
   const [dragging, setDragging] = useState(false)
   const dragStart = useRef({ x: 0, y: 0, cx: 0, cy: 0 })
   const containerRef = useRef<HTMLDivElement>(null)
+  const [editingTitle, setEditingTitle] = useState<ImageData | null>(null)
+  const [editValue, setEditValue] = useState("")
+  const editRef = useRef<HTMLInputElement>(null)
 
   const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null
 
@@ -177,6 +180,32 @@ export default function AdminDashboard() {
 
   function endDrag() {
     setDragging(false)
+  }
+
+  function startEdit(img: ImageData) {
+    setEditValue(img.title)
+    setEditingTitle(img)
+    setTimeout(() => editRef.current?.focus(), 50)
+  }
+
+  async function saveTitle() {
+    if (!editingTitle || !token) return
+    const res = await fetch("/api/admin/upload", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ publicId: editingTitle.publicId, title: editValue.trim() }),
+    })
+    if (res.ok) {
+      setImages((prev) =>
+        prev.map((img) =>
+          img.publicId === editingTitle.publicId ? { ...img, title: editValue.trim() } : img
+        )
+      )
+    }
+    setEditingTitle(null)
   }
 
   function handleMouseDown(e: React.MouseEvent) {
@@ -352,7 +381,27 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 <div className="p-4">
-                  <h3 className="font-semibold text-sm">{img.title}</h3>
+                  {editingTitle?.id === img.id ? (
+                    <input
+                      ref={editRef}
+                      value={editValue}
+                      onChange={(e) => setEditValue(e.target.value)}
+                      onBlur={saveTitle}
+                      onKeyDown={(e) => { if (e.key === "Enter") saveTitle(); if (e.key === "Escape") setEditingTitle(null) }}
+                      className="w-full px-2 py-1 rounded-lg border border-primary/30 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    />
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-sm flex-1 min-w-0 truncate">{img.title}</h3>
+                      <button
+                        onClick={() => startEdit(img)}
+                        className="shrink-0 p-1 text-muted hover:text-primary transition-colors"
+                        title="Editar título"
+                      >
+                        <Pencil size={14} />
+                      </button>
+                    </div>
+                  )}
                   {img.description && <p className="text-xs text-muted mt-1">{img.description}</p>}
                 </div>
               </div>
