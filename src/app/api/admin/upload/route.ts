@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server"
+import { NextResponse, type NextRequest } from "next/server"
 import { validateToken } from "@/lib/auth"
-import { uploadImage, deleteImage, updateImageMeta, listImages, type ImageMeta } from "@/lib/cloudinary"
-import { getAllImages, addImage, removeImage, updateImageCrop } from "@/lib/images-store"
+import { uploadImage, deleteImage, updateImageMeta, type ImageMeta } from "@/lib/cloudinary"
+import { getAllImages, addImage, removeImage } from "@/lib/images-store"
 
 if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
   console.error("Cloudinary não configurado! Verifique as variáveis de ambiente.")
@@ -10,13 +10,16 @@ if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !pr
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"]
 
-async function checkAuth(request: Request) {
-  const auth = request.headers.get("authorization")
-  if (!auth || !auth.startsWith("Bearer ")) return false
-  return validateToken(auth.slice(7))
+async function checkAuth(request: NextRequest) {
+  const cookieToken = request.cookies.get("admin_token")?.value
+  const headerAuth = request.headers.get("authorization")
+  const headerToken = headerAuth?.startsWith("Bearer ") ? headerAuth.slice(7) : ""
+  const token = cookieToken || headerToken
+  if (!token) return false
+  return validateToken(token)
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   if (!(await checkAuth(request))) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
   }
@@ -83,7 +86,7 @@ export async function GET() {
   }
 }
 
-export async function PATCH(request: Request) {
+export async function PATCH(request: NextRequest) {
   if (!(await checkAuth(request))) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
   }
@@ -110,7 +113,7 @@ export async function PATCH(request: Request) {
   }
 }
 
-export async function DELETE(request: Request) {
+export async function DELETE(request: NextRequest) {
   if (!(await checkAuth(request))) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
   }

@@ -40,6 +40,9 @@ yarn-error.log*
 /public/uploads
 /data
 
+# local tooling & skills
+.opencode/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

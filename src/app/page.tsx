@@ -9,19 +9,11 @@ import ProdutosSection from "@/components/sections/ProdutosSection";
 import NovidadesSection from "@/components/sections/NovidadesSection";
 import ContatoSection from "@/components/sections/ContatoSection";
 import { getAllImages } from "@/lib/images-store";
-
-type SectionImage = {
-  id: number;
-  url: string;
-  title: string;
-  description: string;
-  cropX: number;
-  cropY: number;
-};
+import type { GalleryImage } from "@/lib/use-gallery-images";
 
 export default async function Home() {
-  let novidades: SectionImage[] = [];
-  let produtos: SectionImage[] = [];
+  let novidades: GalleryImage[] = [];
+  let produtos: GalleryImage[] = [];
 
   try {
     const images = await getAllImages();

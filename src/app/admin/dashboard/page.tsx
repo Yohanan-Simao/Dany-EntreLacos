@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import Image from "next/image"
-import { Upload, Trash2, LogOut, ImageIcon, Move, X, Package, Sparkles, Pencil } from "lucide-react"
+import { Upload, Trash2, LogOut, ImageIcon, Move, X, Package, Sparkles, Pencil, ExternalLink } from "lucide-react"
 
 type ImageData = {
   id: number
@@ -27,6 +28,7 @@ export default function AdminDashboard() {
   const [preview, setPreview] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState("")
+  const [cropError, setCropError] = useState("")
   const [adjusting, setAdjusting] = useState<ImageData | null>(null)
   const [cropX, setCropX] = useState(50)
   const [cropY, setCropY] = useState(50)
@@ -36,18 +38,26 @@ export default function AdminDashboard() {
   const [editingTitle, setEditingTitle] = useState<ImageData | null>(null)
   const [editValue, setEditValue] = useState("")
   const editRef = useRef<HTMLInputElement>(null)
-  const [token] = useState<string | null>(() => {
-    if (typeof window === "undefined") return null
-    return localStorage.getItem("admin_token")
-  })
 
   useEffect(() => {
-    if (!token) {
-      router.push("/admin")
-      return
+    let cancelled = false
+    async function checkSession() {
+      try {
+        const res = await fetch("/api/admin/session")
+        if (!res.ok) {
+          router.push("/admin")
+          return
+        }
+        if (!cancelled) fetchImages()
+      } catch {
+        router.push("/admin")
+      }
     }
-    fetchImages()
-  }, [token, router])
+    checkSession()
+    return () => {
+      cancelled = true
+    }
+  }, [router])
 
   async function fetchImages() {
     try {
@@ -72,7 +82,7 @@ export default function AdminDashboard() {
 
   async function handleUpload(e: React.FormEvent) {
     e.preventDefault()
-    if (!file || !title || !token) return
+    if (!file || !title) return
 
     setUploading(true)
     setUploadError("")
@@ -89,7 +99,6 @@ export default function AdminDashboard() {
     try {
       const res = await fetch("/api/admin/upload", {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
         body: formData,
         signal: controller.signal,
       })
@@ -130,7 +139,6 @@ export default function AdminDashboard() {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ publicId: img.publicId }),
     })
@@ -140,25 +148,26 @@ export default function AdminDashboard() {
   function openAdjust(img: ImageData) {
     setCropX(img.cropX)
     setCropY(img.cropY)
+    setCropError("")
     setAdjusting(img)
   }
 
   async function saveCrop() {
-    if (!adjusting || !token) return
+    if (!adjusting) return
     const res = await fetch("/api/admin/upload", {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ publicId: adjusting.publicId, cropX, cropY }),
     })
-    setAdjusting(null)
     if (!res.ok) {
       const data = await res.json().catch(() => ({}))
-      alert(data.error || "Erro ao salvar posição")
+      setCropError(data.error || "Não foi possível salvar a posição. Tente novamente.")
       return
     }
+    setAdjusting(null)
+    setCropError("")
     setImages((prev) =>
       prev.map((img) =>
         img.publicId === adjusting!.publicId ? { ...img, cropX, cropY } : img
@@ -211,12 +220,11 @@ export default function AdminDashboard() {
   }, [adjusting])
 
   async function saveTitle() {
-    if (!editingTitle || !token) return
+    if (!editingTitle) return
     const res = await fetch("/api/admin/upload", {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ publicId: editingTitle.publicId, title: editValue.trim() }),
     })
@@ -249,31 +257,34 @@ export default function AdminDashboard() {
   }
 
   async function handleLogout() {
-    if (token) {
-      await fetch("/api/admin/logout", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      })
-    }
-    localStorage.removeItem("admin_token")
+    await fetch("/api/admin/logout", { method: "POST" }).catch(() => {})
     router.push("/admin")
   }
 
   const imageList = Array.isArray(images) ? images : []
-  const filteredImages = [...imageList.filter((img) => (img.type || "produto") === tab)].reverse()
+  const filteredImages = imageList.filter((img) => (img.type || "produto") === tab)
 
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-primary-dark text-white shadow-lg">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
           <h1 className="text-lg font-bold">Painel Administrativo</h1>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 text-sm text-white/80 hover:text-white transition-colors"
-          >
-            <LogOut size={16} />
-            Sair
-          </button>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-primary-dark transition hover:bg-white/90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-dark"
+            >
+              <ExternalLink size={16} />
+              Ver site
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 text-sm text-white hover:opacity-80 transition-opacity rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-dark"
+            >
+              <LogOut size={16} />
+              Sair
+            </button>
+          </div>
         </div>
       </header>
 
@@ -382,13 +393,15 @@ export default function AdminDashboard() {
                     src={img.url}
                     alt={img.title}
                     fill
+                    sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+                    loading="lazy"
                     className="object-cover"
                     style={{ objectPosition: `${img.cropX}% ${img.cropY}%` }}
                   />
                   <div className="absolute top-2 right-2 flex gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition">
                     <button
                       onClick={() => openAdjust(img)}
-                      className="p-2 rounded-full bg-black/50 text-white hover:bg-primary-dark transition-colors"
+                      className="p-2 rounded-full bg-black/50 text-white hover:bg-primary-dark transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2"
                       title="Ajustar posição"
                       aria-label={`Ajustar posição de ${img.title}`}
                     >
@@ -396,7 +409,7 @@ export default function AdminDashboard() {
                     </button>
                     <button
                       onClick={() => handleDelete(img)}
-                      className="p-2 rounded-full bg-black/50 text-white hover:bg-red-500 transition-colors"
+                      className="p-2 rounded-full bg-black/50 text-white hover:bg-red-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2"
                       title="Excluir"
                       aria-label={`Excluir ${img.title}`}
                     >
@@ -419,7 +432,7 @@ export default function AdminDashboard() {
                       <h3 className="font-semibold text-sm flex-1 min-w-0 truncate">{img.title}</h3>
                       <button
                         onClick={() => startEdit(img)}
-                        className="shrink-0 p-1 text-muted hover:text-primary-dark transition-colors"
+                        className="shrink-0 p-1 text-muted hover:text-primary-dark transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2"
                         title="Editar título"
                         aria-label={`Editar título de ${img.title}`}
                       >
@@ -452,7 +465,7 @@ export default function AdminDashboard() {
                 <Move size={18} />
                 Ajustar Posição
               </h3>
-              <button onClick={() => setAdjusting(null)} className="p-1 text-muted hover:text-foreground transition-colors" aria-label="Fechar">
+              <button onClick={() => setAdjusting(null)} className="p-1 text-muted hover:text-foreground transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2" aria-label="Fechar">
                 <X size={20} />
               </button>
             </div>
@@ -488,16 +501,20 @@ export default function AdminDashboard() {
               <span>{Math.round(cropX)}% / {Math.round(cropY)}%</span>
             </div>
 
+            {cropError && (
+              <p role="status" aria-live="polite" className="text-sm text-red-500 mb-4">{cropError}</p>
+            )}
+
             <div className="flex gap-3">
               <button
                 onClick={() => { setCropX(50); setCropY(50) }}
-                className="flex-1 rounded-full border border-primary/30 px-4 py-2.5 text-sm font-medium text-primary-dark hover:bg-primary/5 transition"
+                className="flex-1 rounded-full border border-primary/30 px-4 py-2.5 text-sm font-medium text-primary-dark hover:bg-primary/5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2"
               >
                 Centralizar
               </button>
               <button
                 onClick={saveCrop}
-                className="flex-1 rounded-full bg-primary-dark px-4 py-2.5 text-sm font-semibold text-white hover:brightness-95 transition"
+                className="flex-1 rounded-full bg-primary-dark px-4 py-2.5 text-sm font-semibold text-white hover:brightness-95 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2"
               >
                 Salvar Posição
               </button>

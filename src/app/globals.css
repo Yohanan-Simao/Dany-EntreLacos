@@ -4,24 +4,39 @@
   --color-primary: #c48880;
   --color-primary-light: #d9a8a2;
   --color-primary-dark: #985b58;
+  --color-primary-deep: #83524d;
   --color-accent: #e8d5c4;
   --color-accent-light: #f5f0ea;
-  --color-background: #fafbfc;
+  --color-background: #faf7f2;
   --color-foreground: #2d1f1e;
-  --color-muted: #6B7280;
-  --font-sans: "Inter", "Segoe UI", system-ui, sans-serif;
-  --font-cursive: "Dancing Script", "Brush Script MT", cursive;
+  --color-muted: #6f6360;
+  --font-sans: var(--font-outfit), "Segoe UI", system-ui, sans-serif;
+  --font-cursive: var(--font-fraunces), Georgia, serif;
+  --font-display: var(--font-fraunces), Georgia, serif;
 }
 
 body {
   background: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+  .font-cursive {
+    font-style: italic;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .font-display {
+    letter-spacing: -0.02em;
+    font-feature-settings: "ss01", "ss02";
   }
 }
 

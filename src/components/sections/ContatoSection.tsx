@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { MessageCircle, Camera, Send } from "lucide-react"
+import { MessageCircle, AtSign, Send } from "lucide-react"
 
 const WHATSAPP_NUMBER = "5548984284149"
 
@@ -13,17 +13,13 @@ const contactMethods = [
     desc: "Respondemos rápido!",
     action: "Enviar Mensagem",
     href: `https://wa.me/${WHATSAPP_NUMBER}`,
-    color: "hover:bg-green-50 hover:border-green-300",
-    iconColor: "text-green-500",
   },
   {
-    icon: Camera,
+    icon: AtSign,
     title: "Instagram",
     desc: "Veja nossos trabalhos",
     action: "Seguir @danyentrelacos",
     href: "https://instagram.com/danyentrelacos",
-    color: "hover:bg-pink-50 hover:border-pink-300",
-    iconColor: "text-pink-500",
   },
 ]
 
@@ -50,15 +46,15 @@ export default function ContatoSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="mb-16 max-w-2xl"
         >
-          <span className="text-primary-dark font-semibold text-sm tracking-widest uppercase mb-4 block">
+          <span className="text-primary-dark font-cursive text-lg mb-3 block">
             Contato
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-balance mb-4">
-            Faça Sua Encomenda
+          <h2 className="font-display text-3xl sm:text-4xl font-semibold text-balance mb-3">
+            Faça sua <span className="text-primary-dark font-cursive">encomenda</span>
           </h2>
-          <p className="text-muted max-w-2xl mx-auto text-lg leading-relaxed">
+          <p className="text-muted max-w-xl text-lg leading-relaxed">
             Entre em contato pelo canal que preferir e conte como quer sua peça especial.
           </p>
         </motion.div>
@@ -74,16 +70,16 @@ export default function ContatoSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className={`group flex flex-col items-center text-center p-8 rounded-2xl border border-primary/10 transition-colors ${method.color}`}
+              className={`group flex flex-col items-center text-center p-8 rounded-3xl bg-accent-light border border-primary/10 transition hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10 hover:border-primary/30`}
             >
-              <div className={`mb-4 ${method.iconColor}`}>
-                <method.icon size={32} />
+              <div className={`mb-4 text-primary-dark`}>
+                <method.icon size={32} aria-hidden="true" />
               </div>
               <h3 className="text-lg font-semibold mb-1">{method.title}</h3>
               <p className="text-sm text-muted mb-4">{method.desc}</p>
               <span className="inline-flex items-center gap-2 text-sm font-medium text-primary-dark transition-[gap,color] group-hover:gap-3">
                 {method.action}
-                <Send size={14} />
+                <Send size={14} aria-hidden="true" />
               </span>
             </motion.a>
           ))}
@@ -150,7 +146,7 @@ export default function ContatoSection() {
             </div>
             <button
               type="submit"
-              className="w-full rounded-full bg-primary-dark px-8 py-3.5 text-base font-semibold text-white transition hover:brightness-95 hover:shadow-lg hover:shadow-primary/30 flex items-center justify-center gap-2"
+              className="w-full rounded-full bg-primary-dark px-8 py-3.5 text-base font-semibold text-white transition hover:brightness-95 hover:shadow-lg hover:shadow-primary/30 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2 flex items-center justify-center gap-2"
             >
               <MessageCircle size={18} />
               Enviar Pedido pelo WhatsApp

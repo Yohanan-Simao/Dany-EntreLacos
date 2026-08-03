@@ -1,60 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import { Sparkles } from "lucide-react"
+import { useGalleryImages, type GalleryImage } from "@/lib/use-gallery-images"
 
-type NovidadeImage = {
-  id: number
-  url: string
-  title: string
-  description: string
-  cropX: number
-  cropY: number
-}
-
-export default function NovidadesSection({ initialImages = [] }: { initialImages?: NovidadeImage[] }) {
-  const [images, setImages] = useState<NovidadeImage[]>(initialImages)
-
-  useEffect(() => {
-    async function loadImages() {
-      try {
-        const res = await fetch(`/api/admin/upload?t=${Date.now()}`, { cache: "no-store" })
-        const data = await res.json()
-        if (Array.isArray(data)) {
-          setImages(
-            data
-              .filter((img: { type?: string }) => (img.type || "produto") === "novidade")
-              .slice(0, 4)
-          )
-        }
-      } catch {}
-    }
-
-    loadImages()
-
-    function onPageShow(e: PageTransitionEvent) {
-      if (e.persisted) loadImages()
-    }
-
-    function onVisibilityChange() {
-      if (document.visibilityState === "visible") loadImages()
-    }
-
-    window.addEventListener("pageshow", onPageShow)
-    document.addEventListener("visibilitychange", onVisibilityChange)
-
-    const polling = window.setInterval(() => {
-      if (document.visibilityState === "visible") loadImages()
-    }, 5000)
-
-    return () => {
-      window.removeEventListener("pageshow", onPageShow)
-      document.removeEventListener("visibilitychange", onVisibilityChange)
-      clearInterval(polling)
-    }
-  }, [])
+export default function NovidadesSection({ initialImages = [] }: { initialImages?: GalleryImage[] }) {
+  const images = useGalleryImages("novidade", initialImages)
 
   if (images.length === 0) return null
 
@@ -66,15 +18,15 @@ export default function NovidadesSection({ initialImages = [] }: { initialImages
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-12"
+          className="mb-12 max-w-2xl"
         >
-          <span className="text-primary-dark font-semibold text-sm tracking-widest uppercase mb-4 block">
+          <span className="text-primary-dark font-cursive text-lg mb-3 block">
             Novidades
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-balance mb-4">
-            <span className="text-primary-dark font-cursive">Novidades</span> por aqui
+          <h2 className="font-display text-3xl sm:text-4xl font-semibold text-balance mb-3">
+            As últimas <span className="text-primary-dark font-cursive">criações</span>
           </h2>
-          <p className="text-muted max-w-2xl mx-auto text-lg leading-relaxed">
+          <p className="text-muted max-w-xl text-lg leading-relaxed">
             Fique por dentro das últimas criações e lançamentos.
           </p>
         </motion.div>
@@ -87,7 +39,7 @@ export default function NovidadesSection({ initialImages = [] }: { initialImages
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-white rounded-2xl border border-primary/10 shadow-sm overflow-hidden group"
+              className="bg-white rounded-3xl overflow-hidden group transition-shadow hover:shadow-xl hover:shadow-primary/10"
             >
               <a
                 href={`https://wa.me/5548984284149?text=${encodeURIComponent(`Olá! Vi o modelo "${img.title}" no site de vocês e tenho interesse. Poderia me passar mais informações sobre valores e opções disponíveis?`)}`}
@@ -99,15 +51,17 @@ export default function NovidadesSection({ initialImages = [] }: { initialImages
                   src={img.url}
                   alt={img.title}
                   fill
+                  sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                  loading="lazy"
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                   style={{ objectPosition: `${img.cropX}% ${img.cropY}%` }}
                 />
-                <div className="absolute top-2 left-2 flex items-center gap-1 bg-primary-dark text-white text-xs font-medium px-2.5 py-1 rounded-full pointer-events-none">
-                  <Sparkles size={12} />
+                <div className="absolute top-3 left-3 bg-primary-dark text-white text-xs font-medium px-2.5 py-1 rounded-md tracking-wide">
+                  <Sparkles size={12} className="inline -mt-0.5 mr-1" />
                   Novo
                 </div>
               </a>
-              <div className="p-4 flex items-center justify-between gap-2">
+              <div className="p-5 flex items-center justify-between gap-2">
                 <div className="min-w-0">
                   <h3 className="font-semibold text-sm truncate">{img.title}</h3>
                   {img.description && (
@@ -118,7 +72,7 @@ export default function NovidadesSection({ initialImages = [] }: { initialImages
                   href={`https://wa.me/5548984284149?text=${encodeURIComponent(`Olá! Vi o modelo "${img.title}" no site de vocês e tenho interesse. Poderia me passar mais informações sobre valores e opções disponíveis?`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="shrink-0 text-xs font-semibold text-primary-dark hover:text-foreground transition-colors whitespace-nowrap"
+                  className="shrink-0 text-xs font-semibold text-primary-dark hover:text-foreground transition-colors whitespace-nowrap rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2"
                 >
                   Solicitar
                 </a>

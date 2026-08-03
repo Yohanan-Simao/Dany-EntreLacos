@@ -1,40 +1,38 @@
 import { NextResponse } from "next/server"
-import { createToken } from "@/lib/auth"
-
-const rateLimit = new Map<string, { count: number; resetAt: number }>()
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const entry = rateLimit.get(ip)
-
-  if (!entry || now > entry.resetAt) {
-    rateLimit.set(ip, { count: 1, resetAt: now + 60000 })
-    return true
-  }
-
-  if (entry.count >= 5) return false
-
-  entry.count++
-  return true
-}
+import { createToken, verifyPassword } from "@/lib/auth"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 export async function POST(request: Request) {
-  const ip = request.headers.get("x-forwarded-for") || "unknown"
+  const xff = request.headers.get("x-forwarded-for") || ""
+  const ip = xff.split(",")[0].trim() || "unknown"
 
-  if (!checkRateLimit(ip)) {
+  if (!(await checkRateLimit(ip))) {
     return NextResponse.json(
-      { error: "Muitas tentativas. Tente novamente em 1 minuto." },
+      { error: "Muitas tentativas. Tente novamente em alguns minutos." },
       { status: 429 }
     )
   }
 
-  const { password } = await request.json()
+  let password: unknown
+  try {
+    const body = await request.json()
+    password = body?.password
+  } catch {
+    return NextResponse.json({ error: "Requisição inválida" }, { status: 400 })
+  }
 
-  if (!password || password !== process.env.ADMIN_PASSWORD) {
+  if (typeof password !== "string" || !verifyPassword(password)) {
     return NextResponse.json({ error: "Senha inválida" }, { status: 401 })
   }
 
-  const token = await createToken()
-
-  return NextResponse.json({ token })
+  const token = createToken()
+  const res = NextResponse.json({ ok: true })
+  res.cookies.set("admin_token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24,
+  })
+  return res
 }

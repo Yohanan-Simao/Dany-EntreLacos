@@ -5,7 +5,7 @@ import { ArrowDown, Sparkles } from "lucide-react"
 
 export default function HeroSection() {
   return (
-    <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section id="hero" className="relative min-h-dvh flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent-light" />
 
       <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
@@ -18,7 +18,7 @@ export default function HeroSection() {
           transition={{ duration: 0.8 }}
           className="mb-6"
         >
-          <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary-dark">
+          <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 font-cursive text-lg text-primary-dark">
             <Sparkles size={14} />
             Artesanato feito com amor
           </span>
@@ -28,7 +28,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-balance leading-tight mb-6"
+          className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold text-balance leading-[1.05] mb-6"
         >
           <span className="text-primary-dark font-cursive">Dany</span>{" "}
           <span className="text-foreground font-cursive">EntreLaços</span>
@@ -51,13 +51,13 @@ export default function HeroSection() {
         >
           <a
             href="#contato"
-            className="rounded-full bg-primary-dark px-8 py-3.5 text-base font-semibold text-white transition hover:brightness-95 hover:shadow-lg hover:shadow-primary/30"
+            className="rounded-full bg-primary-dark px-8 py-3.5 text-base font-semibold text-white transition hover:brightness-95 hover:shadow-lg hover:shadow-primary/30 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2"
           >
             Faça seu Pedido
           </a>
           <a
             href="#produtos"
-            className="rounded-full border-2 border-primary/30 px-8 py-3.5 text-base font-semibold text-primary-dark transition hover:border-primary-dark hover:bg-primary/5"
+            className="rounded-full border-2 border-primary/30 px-8 py-3.5 text-base font-semibold text-primary-dark transition hover:border-primary-dark hover:bg-primary/5 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2"
           >
             Ver Produtos
           </a>

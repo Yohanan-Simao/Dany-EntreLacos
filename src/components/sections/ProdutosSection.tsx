@@ -1,17 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import { Sparkles, Crown, Gift } from "lucide-react"
-
-type GalleryImage = {
-  id: number
-  url: string
-  title: string
-  cropX: number
-  cropY: number
-}
+import { useGalleryImages, type GalleryImage } from "@/lib/use-gallery-images"
 
 const products = [
   {
@@ -35,46 +27,7 @@ const products = [
 ]
 
 export default function ProdutosSection({ initialImages = [] }: { initialImages?: GalleryImage[] }) {
-  const [gallery, setGallery] = useState<GalleryImage[]>(initialImages)
-
-  useEffect(() => {
-    async function loadImages() {
-      try {
-        const res = await fetch(`/api/admin/upload?t=${Date.now()}`, { cache: "no-store" })
-        const data = await res.json()
-        if (Array.isArray(data)) {
-          setGallery(
-            data
-              .filter((img: { type?: string }) => (img.type || "produto") === "produto")
-              .slice(0, 4)
-          )
-        }
-      } catch {}
-    }
-
-    loadImages()
-
-    function onPageShow(e: PageTransitionEvent) {
-      if (e.persisted) loadImages()
-    }
-
-    function onVisibilityChange() {
-      if (document.visibilityState === "visible") loadImages()
-    }
-
-    window.addEventListener("pageshow", onPageShow)
-    document.addEventListener("visibilitychange", onVisibilityChange)
-
-    const polling = window.setInterval(() => {
-      if (document.visibilityState === "visible") loadImages()
-    }, 5000)
-
-    return () => {
-      window.removeEventListener("pageshow", onPageShow)
-      document.removeEventListener("visibilitychange", onVisibilityChange)
-      clearInterval(polling)
-    }
-  }, [])
+  const gallery = useGalleryImages("produto", initialImages)
 
   return (
     <section id="produtos" className="py-24 bg-background">
@@ -84,15 +37,15 @@ export default function ProdutosSection({ initialImages = [] }: { initialImages?
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="mb-16 max-w-2xl"
         >
-          <span className="text-primary-dark font-semibold text-sm tracking-widest uppercase mb-4 block">
+          <span className="text-primary-dark font-cursive text-lg mb-3 block">
             Produtos
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-balance mb-4">
-            Nossas Criações
+          <h2 className="font-display text-3xl sm:text-4xl font-semibold text-balance mb-3">
+            Nossas <span className="text-primary-dark font-cursive">criações</span>
           </h2>
-          <p className="text-muted max-w-2xl mx-auto text-lg leading-relaxed">
+          <p className="text-muted max-w-xl text-lg leading-relaxed">
             Cada peça é feita sob encomenda com materiais selecionados e acabamento impecável.
           </p>
         </motion.div>
@@ -104,7 +57,7 @@ export default function ProdutosSection({ initialImages = [] }: { initialImages?
               return (
               <div
                 key={img.id}
-                className="bg-white rounded-2xl border border-primary/10 shadow-sm overflow-hidden group"
+                className="bg-white rounded-3xl overflow-hidden group transition-shadow hover:shadow-xl hover:shadow-primary/10"
               >
                 <a
                   href={wa}
@@ -116,6 +69,8 @@ export default function ProdutosSection({ initialImages = [] }: { initialImages?
                     src={img.url}
                     alt={img.title}
                     fill
+                    sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                    loading="lazy"
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                     style={{ objectPosition: `${img.cropX}% ${img.cropY}%` }}
                   />
@@ -145,12 +100,12 @@ export default function ProdutosSection({ initialImages = [] }: { initialImages?
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.15 }}
-              className="group bg-white rounded-2xl p-6 sm:p-8 border border-primary/10 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 transition"
+              className="group bg-accent-light rounded-3xl p-8 sm:p-10 transition-transform hover:-translate-y-1"
             >
               <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 text-primary-dark mb-4 sm:mb-5">
                 <product.icon size={22} />
               </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">{product.title}</h3>
+              <h3 className="font-display text-lg sm:text-xl font-semibold mb-2 sm:mb-3">{product.title}</h3>
               <p className="text-muted text-sm leading-relaxed mb-4 sm:mb-5">{product.desc}</p>
               <ul className="space-y-2">
                 {product.features.map((feature) => (
@@ -173,7 +128,7 @@ export default function ProdutosSection({ initialImages = [] }: { initialImages?
         >
           <a
             href="#contato"
-            className="inline-flex rounded-full bg-primary-dark px-8 py-3.5 text-base font-semibold text-white transition hover:brightness-95 hover:shadow-lg hover:shadow-primary/30"
+            className="inline-flex rounded-full bg-primary-dark px-8 py-3.5 text-base font-semibold text-white transition hover:brightness-95 hover:shadow-lg hover:shadow-primary/30 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2"
           >
             Solicite seu Orçamento
           </a>

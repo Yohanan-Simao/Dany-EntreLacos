@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Skill scripts and third-party tooling not part of the app:
+    ".opencode/**",
+    "design-system/**",
   ]),
 ]);
 
