@@ -15,7 +15,7 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-white text-sm leading-relaxed">
-              Tiaras e laços artesanais feitos com amor e carinho. Cada peça é única, feita especialmente para você.
+              Tiaras e laços artesanais, feitos um a um com carinho. Cada peça é única — criada especialmente para o seu momento.
             </p>
           </div>
 

@@ -30,7 +30,7 @@ export default function ContatoSection() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const text = `Olá, Dany EntreLaços! Me chamo ${nome || "(nome)"}.${whatsapp ? ` Meu WhatsApp é ${whatsapp}.` : ""} Gostaria de encomendar: ${mensagem || "(descreva o que deseja)"}`
+    const text = `Olá, Dany EntreLaços! Me chamo ${nome || "(nome)"}.${whatsapp ? ` Meu WhatsApp é ${whatsapp}.` : ""} Quero ${mensagem ? `: ${mensagem}` : "uma peça de vocês"} — pode me ajudar?`
     window.open(
       `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`,
       "_blank",
@@ -52,10 +52,10 @@ export default function ContatoSection() {
             Contato
           </span>
           <h2 className="font-display text-3xl sm:text-4xl font-semibold text-balance mb-3">
-            Faça sua <span className="text-primary-dark font-cursive">encomenda</span>
+            Viu uma peça ou quer uma <span className="text-primary-dark font-cursive">exclusiva</span>?
           </h2>
           <p className="text-muted max-w-xl text-lg leading-relaxed">
-            Entre em contato pelo canal que preferir e conte como quer sua peça especial.
+            Pode pedir uma peça da vitrine ou descrever o que você imagina — modelo, cores, ocasião — e a gente cria do seu jeito. Sem compromisso.
           </p>
         </motion.div>
 
@@ -104,7 +104,7 @@ export default function ContatoSection() {
                   type="text"
                   value={nome}
                   onChange={(e) => setNome(e.target.value)}
-                  placeholder="Ex: Maria…"
+                  placeholder="Como podemos te chamar?"
                   className="w-full px-4 py-3 rounded-xl border border-primary/20 bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
                   autoComplete="name"
                   required
@@ -120,7 +120,7 @@ export default function ContatoSection() {
                   type="tel"
                   value={whatsapp}
                   onChange={(e) => setWhatsapp(e.target.value)}
-                  placeholder="Ex: (48) 99999-9999…"
+                  placeholder="Seu WhatsApp (opcional, mas ajuda)"
                   className="w-full px-4 py-3 rounded-xl border border-primary/20 bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
                   autoComplete="tel"
                   inputMode="tel"
@@ -131,14 +131,14 @@ export default function ContatoSection() {
             </div>
             <div>
               <label htmlFor="mensagem" className="block text-sm font-medium text-muted mb-1.5">
-                O que você deseja?
+                O que você procura?
               </label>
               <textarea
                 id="mensagem"
                 name="mensagem"
                 value={mensagem}
                 onChange={(e) => setMensagem(e.target.value)}
-                placeholder="Conte o que você deseja: modelo, cores, ocasião especial…"
+                placeholder="Ex.: gostei da tiara da vitrine, ou quero uma azul com flores para formatura…"
                 rows={4}
                 className="w-full px-4 py-3 rounded-xl border border-primary/20 bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition resize-none"
                 required
@@ -149,7 +149,7 @@ export default function ContatoSection() {
               className="w-full rounded-full bg-primary-dark px-8 py-3.5 text-base font-semibold text-white transition hover:brightness-95 hover:shadow-lg hover:shadow-primary/30 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2 flex items-center justify-center gap-2"
             >
               <MessageCircle size={18} />
-              Enviar Pedido pelo WhatsApp
+              Chamar no WhatsApp
             </button>
           </form>
         </motion.div>

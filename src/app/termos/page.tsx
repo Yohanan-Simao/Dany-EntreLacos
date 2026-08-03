@@ -21,7 +21,7 @@ export default function TermosPage() {
             </p>
             <h2 className="font-display text-xl font-semibold text-foreground mt-8 mb-2">Pedidos e encomendas</h2>
             <p>
-              Todas as peças são feitas sob encomenda. O prazo de produção, valores e condições de pagamento são combinados individualmente pelo WhatsApp antes da confirmação do pedido.
+              Oferecemos tanto peças prontas da vitrine quanto peças exclusivas sob encomenda. Em ambos os casos, prazo de produção, valores e condições de pagamento são combinados individualmente pelo WhatsApp antes da confirmação.
             </p>
             <h2 className="font-display text-xl font-semibold text-foreground mt-8 mb-2">Fotos e cores</h2>
             <p>

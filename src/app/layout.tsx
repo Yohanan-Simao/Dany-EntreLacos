@@ -23,12 +23,13 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "Dany EntreLaços | Tiaras e Laços Artesanais Sob Encomenda",
   description:
-    "Dany EntreLaços — Tiaras e laços artesanais feitos sob encomenda. Peças únicas e delicadas para casamentos, formaturas e ocasiões especiais em Biguaçu, SC.",
+    "Dany EntreLaços — Tiaras e laços artesanais em Biguaçu, SC. Peças prontas na vitrine ou exclusivas feitas sob encomenda, para casamentos, formaturas e ocasiões especiais.",
   keywords: [
     "tiaras artesanais",
     "laços artesanais",
     "acessórios femininos",
     "encomenda de tiaras",
+    "tiaras prontas",
     "Dany EntreLaços",
     "acessórios para casamento",
     "tiaras para noivas",
@@ -40,7 +41,7 @@ export const metadata: Metadata = {
     siteName: "Dany EntreLaços",
     title: "Dany EntreLaços | Tiaras e Laços Artesanais",
     description:
-      "Tiaras e laços artesanais feitos sob encomenda. Peças únicas e delicadas para momentos especiais.",
+      "Tiaras e laços artesanais. Peças prontas na vitrine ou exclusivas feitas sob encomenda, para momentos especiais.",
   },
   robots: {
     index: true,
@@ -58,7 +59,7 @@ export default function RootLayout({
     "@type": "LocalBusiness",
     name: "Dany EntreLaços",
     description:
-      "Tiaras e laços artesanais feitos sob encomenda. Peças únicas e delicadas para casamentos, formaturas e ocasiões especiais.",
+      "Tiaras e laços artesanais. Peças prontas na vitrine ou exclusivas feitas sob encomenda, para casamentos, formaturas e ocasiões especiais.",
     telephone: "+5548984284149",
     url: SITE_URL,
     image: `${SITE_URL}/images/logo.svg`,

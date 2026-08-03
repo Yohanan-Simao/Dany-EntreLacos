@@ -10,7 +10,7 @@ const products = [
     icon: Crown,
     title: "Tiaras Artesanais",
     desc: "Tiaras delicadas para casamentos, formaturas, aniversários e ocasiões especiais. Personalizáveis com flores, pérolas e cristais.",
-    features: ["Sob encomenda", "Personalizáveis", "Entrega em toda Santa Catarina"],
+    features: ["Pronta entrega", "Personalizáveis", "Entrega em toda Santa Catarina"],
   },
   {
     icon: Sparkles,
@@ -43,10 +43,10 @@ export default function ProdutosSection({ initialImages = [] }: { initialImages?
             Produtos
           </span>
           <h2 className="font-display text-3xl sm:text-4xl font-semibold text-balance mb-3">
-            Nossas <span className="text-primary-dark font-cursive">criações</span>
+            Prontas para levar ou <span className="text-primary-dark font-cursive">feitas pra você</span>
           </h2>
           <p className="text-muted max-w-xl text-lg leading-relaxed">
-            Cada peça é feita sob encomenda com materiais selecionados e acabamento impecável.
+            Gostou de alguma peça da vitrine? É só pedir. Ou conte o que você imagina e a gente cria uma exclusiva — sempre com materiais selecionados e acabamento impecável.
           </p>
         </motion.div>
 
@@ -130,7 +130,7 @@ export default function ProdutosSection({ initialImages = [] }: { initialImages?
             href="#contato"
             className="inline-flex rounded-full bg-primary-dark px-8 py-3.5 text-base font-semibold text-white transition hover:brightness-95 hover:shadow-lg hover:shadow-primary/30 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2"
           >
-            Solicite seu Orçamento
+            Solicite seu orçamento
           </a>
         </motion.div>
       </div>

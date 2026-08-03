@@ -20,10 +20,10 @@ export default function InstagramSection() {
               </div>
               <div>
                 <h2 className="text-2xl md:text-3xl font-bold text-white">
-                  Acompanhe no Instagram
+                  Siga a Dany no Instagram
                 </h2>
                 <p className="text-white/80 text-sm md:text-base mt-1">
-                  Veja nossos trabalhos e novidades em tempo real
+                  Bastidores, encomendas e as novidades chegando em primeira mão
                 </p>
               </div>
             </div>

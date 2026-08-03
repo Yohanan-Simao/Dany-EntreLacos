@@ -7,17 +7,17 @@ const values = [
   {
     icon: Sparkles,
     title: "Detalhe em tudo",
-    desc: "Tudo é planejado nos mínimos detalhes para a melhor experiência, da escolha da fita ao acabamento final.",
+    desc: "Da escolha da fita ao último ponto do acabamento, cada etapa é planejada para a peça ficar perfeita.",
   },
   {
     icon: Hand,
     title: "100% feito à mão",
-    desc: "Cada laço e tiara é confeccionado manualmente, com amor e atenção extrema aos detalhes e acabamentos.",
+    desc: "Nada de produção em massa: cada laço e tiara é confeccionado manualmente, com atenção a cada detalhe.",
   },
   {
     icon: Gem,
     title: "Materiais selecionados",
-    desc: "Fitas importadas de alta qualidade e apliques seguros para garantir conforto e durabilidade.",
+    desc: "Fitas de alta qualidade e apliques delicados, escolhidos para garantir conforto, beleza e durabilidade.",
   },
 ]
 
@@ -33,11 +33,11 @@ export default function SobreSection() {
           className="mb-16 max-w-2xl"
         >
           <span className="text-primary-dark font-cursive text-lg mb-3 block">
-            Sobre nós
+            Nossa história
           </span>
           <h2 className="font-display text-3xl sm:text-4xl font-semibold text-balance mb-4">
-            A história da{" "}
-            <span className="text-primary-dark font-cursive">Dany EntreLaços</span>
+            Cada peça começa com uma{" "}
+            <span className="text-primary-dark font-cursive">dose de amor</span>
           </h2>
         </motion.div>
 
@@ -49,13 +49,14 @@ export default function SobreSection() {
             transition={{ duration: 0.6 }}
           >
             <h3 className="font-display text-2xl sm:text-3xl font-semibold text-balance leading-snug mb-6">
-              Cada peça nasce de um processo feito{" "}
-              <span className="text-primary-dark font-cursive">à mão</span>, do
-              início ao fim.
+              O que começou como um hobby virou a nossa{" "}
+              <span className="text-primary-dark font-cursive">paixão</span>.
             </h3>
             <p className="text-muted text-lg leading-relaxed">
-              Tudo começou com a paixão por criar acessórios delicados e únicos. O que era um hobby se transformou
-              em uma missão: levar elegância e charme através de tiaras e laços artesanais.
+              Tudo começou com a vontade de criar acessórios delicados e únicos para quem a gente amava. As primeiras
+              tiaras nasceram como presentes — e a alegria de quem recebia mostrou que ali havia algo especial. Hoje,
+              a vitrine reúne peças que criamos com carinho, e cada pedido — seja de uma peça pronta ou de uma exclusiva —
+              carrega esse mesmo cuidado, do início ao fim.
             </p>
           </motion.div>
 

@@ -24,10 +24,10 @@ export default function NovidadesSection({ initialImages = [] }: { initialImages
             Novidades
           </span>
           <h2 className="font-display text-3xl sm:text-4xl font-semibold text-balance mb-3">
-            As últimas <span className="text-primary-dark font-cursive">criações</span>
+            As criações mais <span className="text-primary-dark font-cursive">recentes</span>
           </h2>
           <p className="text-muted max-w-xl text-lg leading-relaxed">
-            Fique por dentro das últimas criações e lançamentos.
+            Dê uma olhada nas peças que acabaram de sair das nossas mãos — quem sabe a próxima não é feita pra você?
           </p>
         </motion.div>
 

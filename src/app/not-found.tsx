@@ -8,12 +8,12 @@ export default function NotFound() {
       <Header />
       <main id="main" className="min-h-dvh flex items-center justify-center bg-background px-4">
         <div className="text-center max-w-md py-32">
-          <p className="font-cursive text-primary-dark text-xl mb-3">Ops, esse laço se desfez</p>
+          <p className="font-cursive text-primary-dark text-xl mb-3">Ops, esse laço se desfez…</p>
           <h1 className="font-display text-5xl font-semibold text-balance mb-4">
             Página não encontrada
           </h1>
           <p className="text-muted text-lg leading-relaxed mb-8">
-            A página que você procura pode ter sido movida ou nunca existiu. Que tal voltar para a página inicial?
+            Essa página foi movida ou nunca existiu. Mas sua próxima peça favorita ainda está aqui — que tal voltar pra nossa vitrine?
           </p>
           <Link
             href="/"

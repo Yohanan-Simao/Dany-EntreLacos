@@ -20,7 +20,7 @@ export default function HeroSection() {
         >
           <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 font-cursive text-lg text-primary-dark">
             <Sparkles size={14} />
-            Artesanato feito com amor
+            Peças feitas à mão, com carinho
           </span>
         </motion.div>
 
@@ -40,7 +40,7 @@ export default function HeroSection() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="text-lg sm:text-xl text-muted max-w-2xl mx-auto mb-10 leading-relaxed"
         >
-          Tiaras e laços artesanais feitos sob encomenda. Peças únicas, delicadas e cheias de personalidade para momentos especiais.
+          Tiaras e laços artesanais para todos os momentos. Escolha entre as peças prontas da nossa vitrine ou crie a sua exclusiva, feita sob encomenda do jeitinho que você imaginar.
         </motion.p>
 
         <motion.div
@@ -53,13 +53,13 @@ export default function HeroSection() {
             href="#contato"
             className="rounded-full bg-primary-dark px-8 py-3.5 text-base font-semibold text-white transition hover:brightness-95 hover:shadow-lg hover:shadow-primary/30 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2"
           >
-            Faça seu Pedido
+            Encomendar minha peça
           </a>
           <a
             href="#produtos"
             className="rounded-full border-2 border-primary/30 px-8 py-3.5 text-base font-semibold text-primary-dark transition hover:border-primary-dark hover:bg-primary/5 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2"
           >
-            Ver Produtos
+            Ver criações
           </a>
         </motion.div>
 
@@ -73,7 +73,7 @@ export default function HeroSection() {
             href="#sobre"
             className="inline-flex flex-col items-center gap-1 text-muted hover:text-primary-dark transition-colors"
           >
-            <span className="text-xs font-medium">Conheça mais</span>
+            <span className="text-xs font-medium">Descubra nossa história</span>
             <ArrowDown size={16} className="animate-bounce" />
           </a>
         </motion.div>

@@ -70,7 +70,7 @@ export default function TwitterImage() {
             lineHeight: 1.4,
           }}
         >
-          Tiaras e laços artesanais feitos sob encomenda
+          Tiaras e laços artesanais — prontas ou sob encomenda
         </div>
         <div
           style={{
