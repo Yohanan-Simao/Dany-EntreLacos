@@ -76,7 +76,12 @@ export default function ProdutosSection({ initialImages = [] }: { initialImages?
                   />
                 </a>
                 <div className="p-4 flex items-center justify-between gap-2">
-                  <h3 className="font-semibold text-sm truncate min-w-0">{img.title}</h3>
+                  <div className="min-w-0">
+                    <h3 className="font-semibold text-sm truncate">{img.title}</h3>
+                    {img.description && (
+                      <p className="text-xs text-muted mt-1 leading-snug">{img.description}</p>
+                    )}
+                  </div>
                   <a
                     href={wa}
                     target="_blank"

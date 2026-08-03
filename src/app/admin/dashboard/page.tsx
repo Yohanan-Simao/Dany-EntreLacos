@@ -1,10 +1,11 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
-import { Upload, Trash2, LogOut, ImageIcon, Move, X, Package, Sparkles, Pencil, ExternalLink } from "lucide-react"
+import { Upload, Trash2, LogOut, ImageIcon, Move, X, Package, Sparkles, Pencil, ExternalLink, ArrowRightLeft, Check } from "lucide-react"
+import { MAX_DESCRIPTION_LENGTH, MAX_TITLE_LENGTH } from "@/lib/limits"
 
 type ImageData = {
   id: number
@@ -22,12 +23,16 @@ export default function AdminDashboard() {
   const router = useRouter()
   const [images, setImages] = useState<ImageData[]>([])
   const [tab, setTab] = useState<"produto" | "novidade">("produto")
-  const [title, setTitle] = useState("")
-  const [description, setDescription] = useState("")
-  const [file, setFile] = useState<File | null>(null)
-  const [preview, setPreview] = useState<string | null>(null)
+  const [files, setFiles] = useState<File[]>([])
+  const [previews, setPreviews] = useState<string[]>([])
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState("")
+  const [pendingConfig, setPendingConfig] = useState<ImageData[]>([])
+  const [pendingIndex, setPendingIndex] = useState(0)
+  const [pendingTitle, setPendingTitle] = useState("")
+  const [pendingDesc, setPendingDesc] = useState("")
+  const [configError, setConfigError] = useState("")
+  const [configSaving, setConfigSaving] = useState(false)
   const [cropError, setCropError] = useState("")
   const [adjusting, setAdjusting] = useState<ImageData | null>(null)
   const [cropX, setCropX] = useState(50)
@@ -38,6 +43,13 @@ export default function AdminDashboard() {
   const [editingTitle, setEditingTitle] = useState<ImageData | null>(null)
   const [editValue, setEditValue] = useState("")
   const editRef = useRef<HTMLInputElement>(null)
+  const [editingDesc, setEditingDesc] = useState<ImageData | null>(null)
+  const [editDescValue, setEditDescValue] = useState("")
+  const editDescRef = useRef<HTMLTextAreaElement>(null)
+  const [moving, setMoving] = useState<ImageData | null>(null)
+  const [moveError, setMoveError] = useState("")
+  const [movingBusy, setMovingBusy] = useState(false)
+  const configContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -73,65 +85,135 @@ export default function AdminDashboard() {
 
 
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0]
-    if (f) {
-      setFile(f)
-      setPreview(URL.createObjectURL(f))
-    }
+    const selected = Array.from(e.target.files || [])
+    if (selected.length === 0) return
+    setFiles(selected)
+    setPreviews(selected.map((f) => URL.createObjectURL(f)))
   }
 
   async function handleUpload(e: React.FormEvent) {
     e.preventDefault()
-    if (!file || !title) return
+    if (files.length === 0) return
 
     setUploading(true)
     setUploadError("")
 
-    const formData = new FormData()
-    formData.append("image", file)
-    formData.append("title", title)
-    formData.append("description", description)
-    formData.append("type", tab)
+    const uploaded: ImageData[] = []
+    let failed = 0
 
-    const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 30000)
+    for (const f of files) {
+      const formData = new FormData()
+      formData.append("image", f)
+      formData.append("title", f.name.replace(/\.[^.]+$/, "") || "Sem título")
+      formData.append("description", "")
+      formData.append("type", tab)
 
-    try {
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formData,
-        signal: controller.signal,
-      })
-      clearTimeout(timeout)
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 30000)
 
-      if (res.ok) {
-        const newImage = await res.json()
-        setImages((prev) => [newImage, ...prev])
-        setTitle("")
-        setDescription("")
-        setFile(null)
-        setPreview(null)
-        setUploadError("")
-      } else {
-        const text = await res.text()
-        try {
-          const data = JSON.parse(text)
-          setUploadError(data.error || `Erro ${res.status}`)
-        } catch {
-          setUploadError(`Erro ${res.status}: ${text.slice(0, 200)}`)
+      try {
+        const res = await fetch("/api/admin/upload", {
+          method: "POST",
+          body: formData,
+          signal: controller.signal,
+        })
+        clearTimeout(timeout)
+        if (res.ok) {
+          const newImage = await res.json()
+          uploaded.push(newImage)
+        } else {
+          failed++
         }
-      }
-    } catch (err) {
-      clearTimeout(timeout)
-      if (err instanceof DOMException && err.name === "AbortError") {
-        setUploadError("Tempo limite excedido. Imagem muito grande?")
-      } else {
-        setUploadError("Erro de conexão com o servidor.")
+      } catch (err) {
+        clearTimeout(timeout)
+        failed++
+        if (err instanceof DOMException && err.name === "AbortError") {
+          setUploadError("Tempo limite excedido em uma das imagens. Verifique o tamanho.")
+        }
       }
     }
 
     setUploading(false)
+
+    if (uploaded.length > 0) {
+      setImages((prev) => [...uploaded, ...prev])
+      setFiles([])
+      setPreviews([])
+      startPendingConfig(uploaded)
+      if (failed > 0) {
+        setUploadError(`${failed} imagem(ns) falharam. As demais foram enviadas.`)
+      }
+    } else {
+      setUploadError(uploadError || "Nenhuma imagem foi enviada. Verifique os arquivos e tente novamente.")
+    }
   }
+
+  function startPendingConfig(uploaded: ImageData[]) {
+    setPendingConfig(uploaded)
+    setPendingIndex(0)
+    setPendingTitle(uploaded[0].title)
+    setPendingDesc(uploaded[0].description || "")
+    setCropX(uploaded[0].cropX ?? 50)
+    setCropY(uploaded[0].cropY ?? 50)
+    setConfigError("")
+  }
+
+  const closePendingConfig = useCallback(() => {
+    setPendingConfig([])
+    setPendingIndex(0)
+    setConfigError("")
+    setConfigSaving(false)
+  }, [])
+
+  const savePendingItem = useCallback(async () => {
+    const item = pendingConfig[pendingIndex]
+    if (!item || configSaving) return
+    setConfigSaving(true)
+    setConfigError("")
+    try {
+      const res = await fetch("/api/admin/upload", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          publicId: item.publicId,
+          title: pendingTitle.trim() || "Sem título",
+          description: pendingDesc.trim(),
+          cropX,
+          cropY,
+        }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        setConfigError(data.error || "Não foi possível salvar. Tente novamente.")
+        return
+      }
+      const updated = {
+        ...item,
+        title: pendingTitle.trim() || "Sem título",
+        description: pendingDesc.trim(),
+        cropX,
+        cropY,
+      }
+      setImages((prev) => prev.map((img) => (img.publicId === item.publicId ? updated : img)))
+      if (pendingIndex + 1 < pendingConfig.length) {
+        const next = pendingConfig[pendingIndex + 1]
+        setPendingIndex(pendingIndex + 1)
+        setPendingTitle(next.title)
+        setPendingDesc(next.description || "")
+        setCropX(next.cropX ?? 50)
+        setCropY(next.cropY ?? 50)
+        setConfigError("")
+      } else {
+        closePendingConfig()
+      }
+    } catch {
+      setConfigError("Erro de conexão. Tente novamente.")
+    } finally {
+      setConfigSaving(false)
+    }
+  }, [pendingConfig, pendingIndex, configSaving, pendingTitle, pendingDesc, cropX, cropY, closePendingConfig])
 
   async function handleDelete(img: ImageData) {
     if (!confirm("Excluir esta imagem?")) return
@@ -180,9 +262,9 @@ export default function AdminDashboard() {
     dragStart.current = { x: clientX, y: clientY, cx: cropX, cy: cropY }
   }
 
-  function moveDrag(clientX: number, clientY: number) {
-    if (!dragging || !containerRef.current) return
-    const rect = containerRef.current.getBoundingClientRect()
+  function moveDrag(clientX: number, clientY: number, el: HTMLElement | null) {
+    if (!dragging || !el) return
+    const rect = el.getBoundingClientRect()
     const dx = ((clientX - dragStart.current.x) / rect.width) * 100
     const dy = ((clientY - dragStart.current.y) / rect.height) * 100
     setCropX(Math.max(0, Math.min(100, dragStart.current.cx + dx)))
@@ -197,6 +279,12 @@ export default function AdminDashboard() {
     setEditValue(img.title)
     setEditingTitle(img)
     setTimeout(() => editRef.current?.focus(), 50)
+  }
+
+  function startEditDesc(img: ImageData) {
+    setEditDescValue(img.description || "")
+    setEditingDesc(img)
+    setTimeout(() => editDescRef.current?.focus(), 50)
   }
 
   useEffect(() => {
@@ -219,6 +307,31 @@ export default function AdminDashboard() {
     return () => window.removeEventListener("keydown", onKey)
   }, [adjusting])
 
+  useEffect(() => {
+    if (!moving || movingBusy) return
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setMoving(null)
+        setMoveError("")
+      }
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [moving, movingBusy])
+
+  useEffect(() => {
+    if (pendingConfig.length === 0 || configSaving) return
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") closePendingConfig()
+      if (e.key === "Enter" && !e.shiftKey && !(e.target instanceof HTMLTextAreaElement)) {
+        e.preventDefault()
+        savePendingItem()
+      }
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [pendingConfig, pendingIndex, configSaving, cropX, cropY, pendingTitle, pendingDesc, savePendingItem, closePendingConfig])
+
   async function saveTitle() {
     if (!editingTitle) return
     const res = await fetch("/api/admin/upload", {
@@ -238,12 +351,62 @@ export default function AdminDashboard() {
     setEditingTitle(null)
   }
 
+  async function saveDesc() {
+    if (!editingDesc) return
+    const res = await fetch("/api/admin/upload", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ publicId: editingDesc.publicId, description: editDescValue.trim() }),
+    })
+    if (res.ok) {
+      setImages((prev) =>
+        prev.map((img) =>
+          img.publicId === editingDesc.publicId ? { ...img, description: editDescValue.trim() } : img
+        )
+      )
+    }
+    setEditingDesc(null)
+  }
+
+  async function handleMove() {
+    if (!moving) return
+    const newType = moving.type === "produto" ? "novidade" : "produto"
+    setMovingBusy(true)
+    setMoveError("")
+    try {
+      const res = await fetch("/api/admin/upload", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ publicId: moving.publicId, type: newType }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        setMoveError(data.error || "Não foi possível mover. Tente novamente.")
+        return
+      }
+      setImages((prev) =>
+        prev.map((img) =>
+          img.publicId === moving.publicId ? { ...img, type: newType } : img
+        )
+      )
+      setMoving(null)
+    } catch {
+      setMoveError("Erro de conexão. Tente novamente.")
+    } finally {
+      setMovingBusy(false)
+    }
+  }
+
   function handleMouseDown(e: React.MouseEvent) {
     startDrag(e.clientX, e.clientY)
   }
 
   function handleMouseMove(e: React.MouseEvent) {
-    moveDrag(e.clientX, e.clientY)
+    moveDrag(e.clientX, e.clientY, containerRef.current)
   }
 
   function handleTouchStart(e: React.TouchEvent) {
@@ -253,7 +416,25 @@ export default function AdminDashboard() {
 
   function handleTouchMove(e: React.TouchEvent) {
     const t = e.touches[0]
-    moveDrag(t.clientX, t.clientY)
+    moveDrag(t.clientX, t.clientY, containerRef.current)
+  }
+
+  function handleConfigMouseDown(e: React.MouseEvent) {
+    startDrag(e.clientX, e.clientY)
+  }
+
+  function handleConfigMouseMove(e: React.MouseEvent) {
+    moveDrag(e.clientX, e.clientY, configContainerRef.current)
+  }
+
+  function handleConfigTouchStart(e: React.TouchEvent) {
+    const t = e.touches[0]
+    startDrag(t.clientX, t.clientY)
+  }
+
+  function handleConfigTouchMove(e: React.TouchEvent) {
+    const t = e.touches[0]
+    moveDrag(t.clientX, t.clientY, configContainerRef.current)
   }
 
   async function handleLogout() {
@@ -323,45 +504,27 @@ export default function AdminDashboard() {
             Nova Imagem — {tab === "produto" ? "Produto" : "Novidade"}
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-medium text-muted mb-1.5">Título</label>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder={tab === "produto" ? "Ex: Tiara de Flores" : "Ex: Novas Tiaras de Verão"}
-                className="w-full px-4 py-3 rounded-xl border border-primary/20 bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-muted mb-1.5">Descrição</label>
-              <input
-                type="text"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Ex: Descrição opcional"
-                className="w-full px-4 py-3 rounded-xl border border-primary/20 bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition"
-              />
-            </div>
-          </div>
-
           <div className="mb-4">
-            <label className="block text-sm font-medium text-muted mb-1.5">Imagem</label>
-            <div className="flex items-center gap-4">
-              <label className="flex items-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-primary/30 bg-background text-sm text-muted hover:border-primary/50 transition cursor-pointer">
-                <ImageIcon size={18} />
-                {file ? file.name : "Selecionar imagem"}
-                <input type="file" accept="image/*" onChange={handleFile} className="hidden" required />
-              </label>
-              {preview && (
-                <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-primary/10">
-                  <Image src={preview} alt="Preview" fill className="object-cover" />
-                </div>
-              )}
-            </div>
-            <p className="text-xs text-muted mt-1.5">Formatos: JPEG, PNG, WebP, AVIF — Máx 5MB</p>
+            <label className="block text-sm font-medium text-muted mb-1.5">Imagens</label>
+            <label className="inline-flex items-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-primary/30 bg-background text-sm text-muted hover:border-primary/50 transition cursor-pointer">
+              <ImageIcon size={18} />
+              {files.length > 0
+                ? `${files.length} imagem(ns) selecionada(s)`
+                : "Selecionar imagens"}
+              <input type="file" accept="image/*" multiple onChange={handleFile} className="hidden" />
+            </label>
+            {previews.length > 0 && (
+              <div className="flex flex-wrap gap-3 mt-3">
+                {previews.map((src, i) => (
+                  <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border border-primary/10">
+                    <Image src={src} alt={`Preview ${i + 1}`} fill className="object-cover" />
+                  </div>
+                ))}
+              </div>
+            )}
+            <p className="text-xs text-muted mt-1.5">
+              Formatos: JPEG, PNG, WebP, AVIF — Máx 5MB cada. Após o envio, você define título, descrição e posição de cada foto.
+            </p>
           </div>
 
           {uploadError && (
@@ -370,11 +533,11 @@ export default function AdminDashboard() {
 
           <button
             type="submit"
-            disabled={uploading}
+            disabled={uploading || files.length === 0}
             className="rounded-full bg-primary-dark px-6 py-2.5 text-sm font-semibold text-white transition hover:brightness-95 disabled:opacity-60 flex items-center gap-2"
           >
             <Upload size={16} />
-            {uploading ? "Enviando..." : "Enviar"}
+            {uploading ? "Enviando..." : files.length > 1 ? `Enviar ${files.length} imagens` : "Enviar"}
           </button>
         </form>
 
@@ -400,6 +563,14 @@ export default function AdminDashboard() {
                   />
                   <div className="absolute top-2 right-2 flex gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition">
                     <button
+                      onClick={() => { setMoveError(""); setMoving(img) }}
+                      className="p-2 rounded-full bg-black/50 text-white hover:bg-primary-dark transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2"
+                      title={`Mover para ${img.type === "produto" ? "novidades" : "produtos"}`}
+                      aria-label={`Mover ${img.title} para ${img.type === "produto" ? "novidades" : "produtos"}`}
+                    >
+                      <ArrowRightLeft size={16} />
+                    </button>
+                    <button
                       onClick={() => openAdjust(img)}
                       className="p-2 rounded-full bg-black/50 text-white hover:bg-primary-dark transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2"
                       title="Ajustar posição"
@@ -419,14 +590,27 @@ export default function AdminDashboard() {
                 </div>
                 <div className="p-4">
                   {editingTitle?.id === img.id ? (
-                    <input
-                      ref={editRef}
-                      value={editValue}
-                      onChange={(e) => setEditValue(e.target.value)}
-                      onBlur={saveTitle}
-                      onKeyDown={(e) => { if (e.key === "Enter") saveTitle(); if (e.key === "Escape") setEditingTitle(null) }}
-                      className="w-full px-2 py-1 rounded-lg border border-primary/30 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/30"
-                    />
+                    <div className="flex items-center gap-1">
+                      <input
+                        ref={editRef}
+                        value={editValue}
+                        onChange={(e) => setEditValue(e.target.value.slice(0, MAX_TITLE_LENGTH))}
+                        onBlur={saveTitle}
+                        onKeyDown={(e) => { if (e.key === "Enter") saveTitle(); if (e.key === "Escape") setEditingTitle(null) }}
+                        maxLength={MAX_TITLE_LENGTH}
+                        className="w-full px-2 py-1 rounded-lg border border-primary/30 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        aria-label="Editar título"
+                      />
+                      <button
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={saveTitle}
+                        className="shrink-0 p-1.5 rounded-lg bg-primary-dark text-white hover:brightness-95 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2"
+                        title="Salvar título"
+                        aria-label={`Salvar título de ${img.title}`}
+                      >
+                        <Check size={14} />
+                      </button>
+                    </div>
                   ) : (
                     <div className="flex items-center gap-2">
                       <h3 className="font-semibold text-sm flex-1 min-w-0 truncate">{img.title}</h3>
@@ -440,7 +624,54 @@ export default function AdminDashboard() {
                       </button>
                     </div>
                   )}
-                  {img.description && <p className="text-xs text-muted mt-1">{img.description}</p>}
+                  {editingDesc?.id === img.id ? (
+                    <div className="mt-1">
+                      <textarea
+                        ref={editDescRef}
+                        value={editDescValue}
+                        onChange={(e) => setEditDescValue(e.target.value.slice(0, MAX_DESCRIPTION_LENGTH))}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); saveDesc() }
+                          if (e.key === "Escape") setEditingDesc(null)
+                        }}
+                        rows={2}
+                        maxLength={MAX_DESCRIPTION_LENGTH}
+                        className="w-full px-2 py-1 rounded-lg border border-primary/30 text-xs focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+                        aria-label="Editar descrição"
+                      />
+                      <div className="flex items-center justify-between mt-1">
+                        <span
+                          className={`text-[10px] tabular-nums ${
+                            editDescValue.length >= MAX_DESCRIPTION_LENGTH ? "text-red-500 font-semibold" : "text-muted"
+                          }`}
+                        >
+                          {editDescValue.length}/{MAX_DESCRIPTION_LENGTH}
+                        </span>
+                        <button
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={saveDesc}
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-primary-dark text-white text-xs font-semibold hover:brightness-95 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2"
+                          title="Salvar descrição"
+                          aria-label={`Salvar descrição de ${img.title}`}
+                        >
+                          <Check size={12} />
+                          Salvar
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-start gap-2 mt-1">
+                      <p className="text-xs text-muted flex-1 min-w-0">{img.description || "Sem descrição"}</p>
+                      <button
+                        onClick={() => startEditDesc(img)}
+                        className="shrink-0 p-1 text-muted hover:text-primary-dark transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2"
+                        title="Editar descrição"
+                        aria-label={`Editar descrição de ${img.title}`}
+                      >
+                        <Pencil size={14} />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -517,6 +748,184 @@ export default function AdminDashboard() {
                 className="flex-1 rounded-full bg-primary-dark px-4 py-2.5 text-sm font-semibold text-white hover:brightness-95 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2"
               >
                 Salvar Posição
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {moving && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 overscroll-contain"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="move-title"
+          onClick={() => { if (!movingBusy) { setMoving(null); setMoveError("") } }}
+        >
+          <div
+            className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 id="move-title" className="font-semibold flex items-center gap-2">
+                <ArrowRightLeft size={18} />
+                Mover imagem
+              </h3>
+              <button
+                onClick={() => { setMoving(null); setMoveError("") }}
+                disabled={movingBusy}
+                className="p-1 text-muted hover:text-foreground transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2 disabled:opacity-50"
+                aria-label="Fechar"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <p className="text-sm text-muted mb-6">
+              Tem certeza que quer mover <strong className="text-foreground font-semibold">{moving.title}</strong>{" "}
+              para <strong className="text-foreground font-semibold">{moving.type === "produto" ? "novidades" : "produtos"}</strong>?
+            </p>
+
+            {moveError && (
+              <p role="status" aria-live="polite" className="text-sm text-red-500 mb-4">{moveError}</p>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setMoving(null); setMoveError("") }}
+                disabled={movingBusy}
+                className="flex-1 rounded-full border border-primary/30 px-4 py-2.5 text-sm font-medium text-primary-dark hover:bg-primary/5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2 disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleMove}
+                disabled={movingBusy}
+                className="flex-1 rounded-full bg-primary-dark px-4 py-2.5 text-sm font-semibold text-white hover:brightness-95 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2 disabled:opacity-60 flex items-center justify-center gap-2"
+              >
+                <ArrowRightLeft size={16} />
+                {movingBusy ? "Movendo…" : "Mover"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {pendingConfig.length > 0 && pendingConfig[pendingIndex] && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 overscroll-contain"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="config-title"
+          onClick={() => { if (!configSaving) closePendingConfig() }}
+        >
+          <div
+            className="bg-white rounded-2xl p-6 max-w-lg w-full shadow-xl max-h-[90dvh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 id="config-title" className="font-semibold flex items-center gap-2">
+                <Pencil size={18} />
+                Configurar imagem {pendingIndex + 1} de {pendingConfig.length}
+              </h3>
+              <button
+                onClick={closePendingConfig}
+                disabled={configSaving}
+                className="p-1 text-muted hover:text-foreground transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2 disabled:opacity-50"
+                aria-label="Fechar"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div
+              ref={configContainerRef}
+              className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 cursor-grab active:cursor-grabbing mb-4 select-none touch-none"
+              onMouseDown={handleConfigMouseDown}
+              onMouseMove={handleConfigMouseMove}
+              onMouseUp={endDrag}
+              onMouseLeave={endDrag}
+              onTouchStart={handleConfigTouchStart}
+              onTouchMove={handleConfigTouchMove}
+              onTouchEnd={endDrag}
+              tabIndex={0}
+              role="img"
+              aria-label="Área de ajuste. Arraste para reposicionar a imagem."
+            >
+              <Image
+                src={pendingConfig[pendingIndex].url}
+                alt="Ajustar"
+                fill
+                className="pointer-events-none"
+                style={{ objectPosition: `${cropX}% ${cropY}%`, objectFit: "cover" }}
+                draggable={false}
+              />
+            </div>
+
+            <div className="flex items-center justify-between text-xs text-muted mb-4">
+              <span>Arraste para reposicionar</span>
+              <span>{Math.round(cropX)}% / {Math.round(cropY)}%</span>
+            </div>
+
+            <div className="space-y-4 mb-4">
+              <div>
+                <label htmlFor="config-title-input" className="block text-sm font-medium text-muted mb-1.5">
+                  Título
+                </label>
+                <input
+                  id="config-title-input"
+                  type="text"
+                  value={pendingTitle}
+                  onChange={(e) => setPendingTitle(e.target.value.slice(0, MAX_TITLE_LENGTH))}
+                  placeholder="Ex: Tiara de Flores"
+                  maxLength={MAX_TITLE_LENGTH}
+                  className="w-full px-4 py-3 rounded-xl border border-primary/20 bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
+                />
+              </div>
+              <div>
+                <label htmlFor="config-desc-input" className="block text-sm font-medium text-muted mb-1.5">
+                  Descrição
+                </label>
+                <textarea
+                  id="config-desc-input"
+                  value={pendingDesc}
+                  onChange={(e) => setPendingDesc(e.target.value.slice(0, MAX_DESCRIPTION_LENGTH))}
+                  placeholder="Ex: Descrição opcional"
+                  rows={2}
+                  maxLength={MAX_DESCRIPTION_LENGTH}
+                  className="w-full px-4 py-3 rounded-xl border border-primary/20 bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition resize-none"
+                />
+                <div className="flex justify-end mt-1">
+                  <span
+                    className={`text-[10px] tabular-nums ${
+                      pendingDesc.length >= MAX_DESCRIPTION_LENGTH ? "text-red-500 font-semibold" : "text-muted"
+                    }`}
+                  >
+                    {pendingDesc.length}/{MAX_DESCRIPTION_LENGTH}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {configError && (
+              <p role="status" aria-live="polite" className="text-sm text-red-500 mb-4">{configError}</p>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setCropX(50); setCropY(50) }}
+                disabled={configSaving}
+                className="flex-1 rounded-full border border-primary/30 px-4 py-2.5 text-sm font-medium text-primary-dark hover:bg-primary/5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2 disabled:opacity-50"
+              >
+                Centralizar
+              </button>
+              <button
+                onClick={savePendingItem}
+                disabled={configSaving}
+                className="flex-1 rounded-full bg-primary-dark px-4 py-2.5 text-sm font-semibold text-white hover:brightness-95 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2 disabled:opacity-60 flex items-center justify-center gap-2"
+              >
+                <Pencil size={16} />
+                {configSaving ? "Salvando…" : pendingIndex + 1 < pendingConfig.length ? "Salvar e próxima" : "Salvar"}
               </button>
             </div>
           </div>

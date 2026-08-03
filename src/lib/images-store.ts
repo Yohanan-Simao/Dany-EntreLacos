@@ -86,3 +86,17 @@ export async function updateImageCrop(publicId: string, cropX: number, cropY: nu
     )
   )
 }
+
+export async function updateImageMetaStore(
+  publicId: string,
+  patch: Partial<Pick<StoredImage, "title" | "description" | "type" | "cropX" | "cropY">>
+) {
+  if (!hasBlobToken()) return
+  const current = await readBlob()
+  if (!current) return
+  await writeBlob(
+    current.map((img) =>
+      img.publicId === publicId ? { ...img, ...patch } : img
+    )
+  )
+}

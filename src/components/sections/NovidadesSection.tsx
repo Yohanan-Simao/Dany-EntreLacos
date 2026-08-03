@@ -65,7 +65,7 @@ export default function NovidadesSection({ initialImages = [] }: { initialImages
                 <div className="min-w-0">
                   <h3 className="font-semibold text-sm truncate">{img.title}</h3>
                   {img.description && (
-                    <p className="text-xs text-muted mt-1 truncate">{img.description}</p>
+                    <p className="text-xs text-muted mt-1 leading-snug">{img.description}</p>
                   )}
                 </div>
                 <a

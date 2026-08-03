@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server"
 import { validateToken } from "@/lib/auth"
 import { uploadImage, deleteImage, updateImageMeta, type ImageMeta } from "@/lib/cloudinary"
-import { getAllImages, addImage, removeImage } from "@/lib/images-store"
+import { getAllImages, addImage, removeImage, updateImageMetaStore } from "@/lib/images-store"
 
 if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
   console.error("Cloudinary não configurado! Verifique as variáveis de ambiente.")
@@ -106,6 +106,13 @@ export async function PATCH(request: NextRequest) {
 
   try {
     await updateImageMeta(publicId, meta)
+    await updateImageMetaStore(publicId, {
+      ...(cropX !== undefined ? { cropX } : {}),
+      ...(cropY !== undefined ? { cropY } : {}),
+      ...(title !== undefined ? { title } : {}),
+      ...(description !== undefined ? { description } : {}),
+      ...(type !== undefined ? { type } : {}),
+    })
     return NextResponse.json({ success: true })
   } catch (err) {
     const message = err instanceof Error ? err.message : "Erro desconhecido"
