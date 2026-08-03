@@ -34,7 +34,7 @@ export default async function Home() {
   return (
     <>
       <Header />
-      <main>
+      <main id="main">
         <HeroSection />
         <NovidadesSection initialImages={novidades} />
         <InstagramSection />

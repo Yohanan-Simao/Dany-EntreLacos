@@ -38,8 +38,6 @@ export default function ProdutosSection({ initialImages = [] }: { initialImages?
   const [gallery, setGallery] = useState<GalleryImage[]>(initialImages)
 
   useEffect(() => {
-    let polling: number
-
     async function loadImages() {
       try {
         const res = await fetch(`/api/admin/upload?t=${Date.now()}`, { cache: "no-store" })
@@ -67,7 +65,7 @@ export default function ProdutosSection({ initialImages = [] }: { initialImages?
     window.addEventListener("pageshow", onPageShow)
     document.addEventListener("visibilitychange", onVisibilityChange)
 
-    polling = window.setInterval(() => {
+    const polling = window.setInterval(() => {
       if (document.visibilityState === "visible") loadImages()
     }, 5000)
 
@@ -147,7 +145,7 @@ export default function ProdutosSection({ initialImages = [] }: { initialImages?
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.15 }}
-              className="group bg-white rounded-2xl p-6 sm:p-8 border border-primary/10 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 transition-all"
+              className="group bg-white rounded-2xl p-6 sm:p-8 border border-primary/10 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 transition"
             >
               <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 text-primary mb-4 sm:mb-5">
                 <product.icon size={22} />
@@ -175,7 +173,7 @@ export default function ProdutosSection({ initialImages = [] }: { initialImages?
         >
           <a
             href="#contato"
-            className="inline-flex rounded-full bg-primary px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/30"
+            className="inline-flex rounded-full bg-primary px-8 py-3.5 text-base font-semibold text-white transition hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/30"
           >
             Solicite seu Orçamento
           </a>

@@ -51,13 +51,13 @@ export default function HeroSection() {
         >
           <a
             href="#contato"
-            className="rounded-full bg-primary px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/30"
+            className="rounded-full bg-primary px-8 py-3.5 text-base font-semibold text-white transition hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/30"
           >
             Faça seu Pedido
           </a>
           <a
             href="#produtos"
-            className="rounded-full border-2 border-primary/30 px-8 py-3.5 text-base font-semibold text-primary transition-all hover:border-primary hover:bg-primary/5"
+            className="rounded-full border-2 border-primary/30 px-8 py-3.5 text-base font-semibold text-primary transition hover:border-primary hover:bg-primary/5"
           >
             Ver Produtos
           </a>

@@ -53,9 +53,9 @@ export default function SobreSection() {
               whileInView={{ y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.15 }}
-              className="group text-center p-8 rounded-2xl bg-white hover:bg-primary/5 border-2 border-primary/30 shadow-sm transition-all"
+              className="group text-center p-8 rounded-2xl bg-white hover:bg-primary/5 border-2 border-primary/30 shadow-sm transition-colors"
             >
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 text-primary mb-5 group-hover:bg-primary group-hover:text-white transition-all">
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 text-primary mb-5 group-hover:bg-primary group-hover:text-white transition-colors">
                 <item.icon size={24} />
               </div>
               <h3 className="text-lg font-semibold mb-2">{item.title}</h3>

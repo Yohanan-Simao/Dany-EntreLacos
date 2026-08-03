@@ -56,27 +56,29 @@ export default function LoginForm() {
         </p>
 
         {error && (
-          <p className="text-sm text-red-500 text-center mb-4">{error}</p>
+          <p role="status" aria-live="polite" className="text-sm text-red-500 text-center mb-4">{error}</p>
         )}
 
         <input
           type="password"
+          name="password"
           placeholder="Senha"
+          aria-label="Senha"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="w-full px-4 py-3 rounded-xl border border-primary/20 bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all mb-4"
-          autoFocus
+          autoComplete="current-password"
+          className="w-full px-4 py-3 rounded-xl border border-primary/20 bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition mb-4"
         />
 
         <button
           type="button"
           disabled={loading}
           onClick={handleLogin}
-          className="w-full rounded-full bg-primary px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/30 flex items-center justify-center gap-2 disabled:opacity-60"
+          className="w-full rounded-full bg-primary px-8 py-3.5 text-base font-semibold text-white transition hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/30 flex items-center justify-center gap-2 disabled:opacity-60"
         >
           <LogIn size={18} />
-          {loading ? "Entrando..." : "Entrar"}
+          {loading ? "Entrando…" : "Entrar"}
         </button>
       </div>
     </div>

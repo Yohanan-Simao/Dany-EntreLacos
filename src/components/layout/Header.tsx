@@ -38,7 +38,7 @@ export default function Header() {
             ))}
             <a
               href="#contato"
-              className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary transition-all hover:bg-white/90"
+              className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary transition-colors hover:bg-white/90"
             >
               Fazer Pedido
             </a>
@@ -47,7 +47,9 @@ export default function Header() {
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="md:hidden p-2 text-white/80 hover:text-white"
-            aria-label="Abrir menu"
+            aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
+            aria-expanded={isOpen}
+            aria-controls="mobile-menu"
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -57,10 +59,11 @@ export default function Header() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
             className="md:hidden overflow-hidden bg-primary border-t border-white/20"
+            id="mobile-menu"
           >
             <nav className="flex flex-col px-4 py-4 gap-3">
               {navLinks.map((link) => (
@@ -76,7 +79,7 @@ export default function Header() {
               <a
                 href="#contato"
                 onClick={() => setIsOpen(false)}
-                className="mt-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-primary text-center transition-all hover:bg-white/90"
+                className="mt-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-primary text-center transition-colors hover:bg-white/90"
               >
                 Fazer Pedido
               </a>

@@ -8,7 +8,7 @@ export default function InstagramSection() {
           href="https://instagram.com/danyentrelacos"
           target="_blank"
           rel="noopener noreferrer"
-          className="group relative block overflow-hidden rounded-2xl bg-gradient-to-r from-primary to-primary-dark p-8 md:p-12 transition-all hover:shadow-xl hover:shadow-primary/30"
+          className="group relative block overflow-hidden rounded-2xl bg-gradient-to-r from-primary to-primary-dark p-8 md:p-12 transition hover:shadow-xl hover:shadow-primary/30"
         >
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
@@ -28,7 +28,7 @@ export default function InstagramSection() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 rounded-full bg-white px-6 py-3 text-primary font-semibold transition-all group-hover:bg-white/90 group-hover:gap-4 shrink-0">
+            <div className="flex items-center gap-3 rounded-full bg-white px-6 py-3 text-primary font-semibold transition-[gap,background-color] group-hover:bg-white/90 group-hover:gap-4 shrink-0">
               <span>@danyentrelacos</span>
               <ArrowUpRight size={18} />
             </div>

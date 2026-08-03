@@ -18,8 +18,6 @@ export default function NovidadesSection({ initialImages = [] }: { initialImages
   const [images, setImages] = useState<NovidadeImage[]>(initialImages)
 
   useEffect(() => {
-    let polling: number
-
     async function loadImages() {
       try {
         const res = await fetch(`/api/admin/upload?t=${Date.now()}`, { cache: "no-store" })
@@ -47,7 +45,7 @@ export default function NovidadesSection({ initialImages = [] }: { initialImages
     window.addEventListener("pageshow", onPageShow)
     document.addEventListener("visibilitychange", onVisibilityChange)
 
-    polling = window.setInterval(() => {
+    const polling = window.setInterval(() => {
       if (document.visibilityState === "visible") loadImages()
     }, 5000)
 
@@ -84,6 +82,7 @@ export default function NovidadesSection({ initialImages = [] }: { initialImages
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {images.map((img, index) => (
             <motion.div
+              key={img.id}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
