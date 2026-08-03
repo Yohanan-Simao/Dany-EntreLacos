@@ -4,8 +4,9 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
-import { Upload, Trash2, LogOut, ImageIcon, Move, X, Package, Sparkles, Pencil, ExternalLink, ArrowRightLeft, Check } from "lucide-react"
+import { Upload, Trash2, LogOut, ImageIcon, Move, X, Package, Sparkles, Pencil, ExternalLink, ArrowRightLeft, Check, ZoomIn, ZoomOut } from "lucide-react"
 import { MAX_DESCRIPTION_LENGTH, MAX_TITLE_LENGTH } from "@/lib/limits"
+import { cropTransformStyle } from "@/lib/utils"
 
 type ImageData = {
   id: number
@@ -16,6 +17,7 @@ type ImageData = {
   type: string
   cropX: number
   cropY: number
+  zoom: number
   createdAt: string
 }
 
@@ -37,6 +39,7 @@ export default function AdminDashboard() {
   const [adjusting, setAdjusting] = useState<ImageData | null>(null)
   const [cropX, setCropX] = useState(50)
   const [cropY, setCropY] = useState(50)
+  const [zoom, setZoom] = useState(1)
   const [dragging, setDragging] = useState(false)
   const dragStart = useRef({ x: 0, y: 0, cx: 0, cy: 0 })
   const containerRef = useRef<HTMLDivElement>(null)
@@ -49,6 +52,9 @@ export default function AdminDashboard() {
   const [moving, setMoving] = useState<ImageData | null>(null)
   const [moveError, setMoveError] = useState("")
   const [movingBusy, setMovingBusy] = useState(false)
+  const [deleting, setDeleting] = useState<ImageData | null>(null)
+  const [deleteError, setDeleteError] = useState("")
+  const [deleteBusy, setDeleteBusy] = useState(false)
   const configContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -155,6 +161,7 @@ export default function AdminDashboard() {
     setPendingDesc(uploaded[0].description || "")
     setCropX(uploaded[0].cropX ?? 50)
     setCropY(uploaded[0].cropY ?? 50)
+    setZoom(uploaded[0].zoom ?? 1)
     setConfigError("")
   }
 
@@ -182,6 +189,7 @@ export default function AdminDashboard() {
           description: pendingDesc.trim(),
           cropX,
           cropY,
+          zoom,
         }),
       })
       if (!res.ok) {
@@ -195,6 +203,7 @@ export default function AdminDashboard() {
         description: pendingDesc.trim(),
         cropX,
         cropY,
+        zoom,
       }
       setImages((prev) => prev.map((img) => (img.publicId === item.publicId ? updated : img)))
       if (pendingIndex + 1 < pendingConfig.length) {
@@ -204,6 +213,7 @@ export default function AdminDashboard() {
         setPendingDesc(next.description || "")
         setCropX(next.cropX ?? 50)
         setCropY(next.cropY ?? 50)
+        setZoom(next.zoom ?? 1)
         setConfigError("")
       } else {
         closePendingConfig()
@@ -213,23 +223,39 @@ export default function AdminDashboard() {
     } finally {
       setConfigSaving(false)
     }
-  }, [pendingConfig, pendingIndex, configSaving, pendingTitle, pendingDesc, cropX, cropY, closePendingConfig])
+  }, [pendingConfig, pendingIndex, configSaving, pendingTitle, pendingDesc, cropX, cropY, zoom, closePendingConfig])
 
-  async function handleDelete(img: ImageData) {
-    if (!confirm("Excluir esta imagem?")) return
-    await fetch("/api/admin/upload", {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ publicId: img.publicId }),
-    })
-    await fetchImages()
+  async function handleDelete() {
+    if (!deleting || deleteBusy) return
+    setDeleteBusy(true)
+    setDeleteError("")
+    try {
+      const res = await fetch("/api/admin/upload", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ publicId: deleting.publicId }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        setDeleteError(data.error || "Não foi possível excluir. Tente novamente.")
+        return
+      }
+      setDeleting(null)
+      setDeleteError("")
+      await fetchImages()
+    } catch {
+      setDeleteError("Erro de conexão. Tente novamente.")
+    } finally {
+      setDeleteBusy(false)
+    }
   }
 
   function openAdjust(img: ImageData) {
-    setCropX(img.cropX)
-    setCropY(img.cropY)
+    setCropX(img.cropX ?? 50)
+    setCropY(img.cropY ?? 50)
+    setZoom(img.zoom ?? 1)
     setCropError("")
     setAdjusting(img)
   }
@@ -241,7 +267,7 @@ export default function AdminDashboard() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ publicId: adjusting.publicId, cropX, cropY }),
+      body: JSON.stringify({ publicId: adjusting.publicId, cropX, cropY, zoom }),
     })
     if (!res.ok) {
       const data = await res.json().catch(() => ({}))
@@ -252,7 +278,7 @@ export default function AdminDashboard() {
     setCropError("")
     setImages((prev) =>
       prev.map((img) =>
-        img.publicId === adjusting!.publicId ? { ...img, cropX, cropY } : img
+        img.publicId === adjusting!.publicId ? { ...img, cropX, cropY, zoom } : img
       )
     )
   }
@@ -265,8 +291,9 @@ export default function AdminDashboard() {
   function moveDrag(clientX: number, clientY: number, el: HTMLElement | null) {
     if (!dragging || !el) return
     const rect = el.getBoundingClientRect()
-    const dx = ((clientX - dragStart.current.x) / rect.width) * 100
-    const dy = ((clientY - dragStart.current.y) / rect.height) * 100
+    const scale = zoom
+    const dx = ((clientX - dragStart.current.x) / rect.width) * 100 / scale
+    const dy = ((clientY - dragStart.current.y) / rect.height) * 100 / scale
     setCropX(Math.max(0, Math.min(100, dragStart.current.cx + dx)))
     setCropY(Math.max(0, Math.min(100, dragStart.current.cy + dy)))
   }
@@ -318,6 +345,18 @@ export default function AdminDashboard() {
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
   }, [moving, movingBusy])
+
+  useEffect(() => {
+    if (!deleting || deleteBusy) return
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setDeleting(null)
+        setDeleteError("")
+      }
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [deleting, deleteBusy])
 
   useEffect(() => {
     if (pendingConfig.length === 0 || configSaving) return
@@ -559,7 +598,7 @@ export default function AdminDashboard() {
                     sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
                     loading="lazy"
                     className="object-cover"
-                    style={{ objectPosition: `${img.cropX}% ${img.cropY}%` }}
+                    style={cropTransformStyle(img.cropX ?? 50, img.cropY ?? 50, img.zoom ?? 1)}
                   />
                   <div className="absolute top-2 right-2 flex gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition">
                     <button
@@ -579,7 +618,7 @@ export default function AdminDashboard() {
                       <Move size={16} />
                     </button>
                     <button
-                      onClick={() => handleDelete(img)}
+                      onClick={() => { setDeleteError(""); setDeleting(img) }}
                       className="p-2 rounded-full bg-black/50 text-white hover:bg-red-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2"
                       title="Excluir"
                       aria-label={`Excluir ${img.title}`}
@@ -701,7 +740,7 @@ export default function AdminDashboard() {
               </button>
             </div>
 
-            <p className="text-sm text-muted mb-4">Arraste a imagem ou use as setas do teclado para centralizar o foco no quadro.</p>
+            <p className="text-sm text-muted mb-4">Arraste a imagem ou use as setas do teclado para centralizar o foco no quadro. Use o zoom para aproximar os detalhes.</p>
 
             <div
               ref={containerRef}
@@ -722,7 +761,7 @@ export default function AdminDashboard() {
                 alt="Ajustar"
                 fill
                 className="pointer-events-none"
-                style={{ objectPosition: `${cropX}% ${cropY}%`, objectFit: "cover" }}
+                style={cropTransformStyle(cropX, cropY, zoom)}
                 draggable={false}
               />
             </div>
@@ -732,13 +771,42 @@ export default function AdminDashboard() {
               <span>{Math.round(cropX)}% / {Math.round(cropY)}%</span>
             </div>
 
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <button
+                onClick={() => setZoom((z) => Math.max(1, Math.round((z - 0.25) * 100) / 100))}
+                className="p-2 rounded-full border border-primary/30 text-primary-dark hover:bg-primary/5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2"
+                title="Diminuir zoom"
+                aria-label="Diminuir zoom"
+              >
+                <ZoomOut size={16} />
+              </button>
+              <span className="w-16 text-center text-sm font-semibold tabular-nums text-foreground">
+                {Math.round(zoom * 100)}%
+              </span>
+              <button
+                onClick={() => setZoom((z) => Math.min(4, Math.round((z + 0.25) * 100) / 100))}
+                className="p-2 rounded-full border border-primary/30 text-primary-dark hover:bg-primary/5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2"
+                title="Aumentar zoom"
+                aria-label="Aumentar zoom"
+              >
+                <ZoomIn size={16} />
+              </button>
+              <button
+                onClick={() => setZoom(1)}
+                className="ml-2 px-3 py-1.5 rounded-full border border-primary/30 text-xs font-medium text-primary-dark hover:bg-primary/5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2"
+                title="Redefinir zoom"
+              >
+                Redefinir
+              </button>
+            </div>
+
             {cropError && (
               <p role="status" aria-live="polite" className="text-sm text-red-500 mb-4">{cropError}</p>
             )}
 
             <div className="flex gap-3">
               <button
-                onClick={() => { setCropX(50); setCropY(50) }}
+                onClick={() => { setCropX(50); setCropY(50); setZoom(1) }}
                 className="flex-1 rounded-full border border-primary/30 px-4 py-2.5 text-sm font-medium text-primary-dark hover:bg-primary/5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2"
               >
                 Centralizar
@@ -811,6 +879,62 @@ export default function AdminDashboard() {
         </div>
       )}
 
+      {deleting && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 overscroll-contain"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-title"
+          onClick={() => { if (!deleteBusy) { setDeleting(null); setDeleteError("") } }}
+        >
+          <div
+            className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 id="delete-title" className="font-semibold flex items-center gap-2">
+                <Trash2 size={18} className="text-red-500" />
+                Excluir imagem
+              </h3>
+              <button
+                onClick={() => { setDeleting(null); setDeleteError("") }}
+                disabled={deleteBusy}
+                className="p-1 text-muted hover:text-foreground transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2 disabled:opacity-50"
+                aria-label="Fechar"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <p className="text-sm text-muted mb-6">
+              Tem certeza que quer excluir <strong className="text-foreground font-semibold">{deleting.title}</strong>? Essa ação não pode ser desfeita.
+            </p>
+
+            {deleteError && (
+              <p role="status" aria-live="polite" className="text-sm text-red-500 mb-4">{deleteError}</p>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setDeleting(null); setDeleteError("") }}
+                disabled={deleteBusy}
+                className="flex-1 rounded-full border border-primary/30 px-4 py-2.5 text-sm font-medium text-primary-dark hover:bg-primary/5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2 disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleteBusy}
+                className="flex-1 rounded-full bg-red-500 px-4 py-2.5 text-sm font-semibold text-white hover:brightness-95 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 disabled:opacity-60 flex items-center justify-center gap-2"
+              >
+                <Trash2 size={16} />
+                {deleteBusy ? "Excluindo…" : "Excluir"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {pendingConfig.length > 0 && pendingConfig[pendingIndex] && (
         <div
           className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 overscroll-contain"
@@ -857,7 +981,7 @@ export default function AdminDashboard() {
                 alt="Ajustar"
                 fill
                 className="pointer-events-none"
-                style={{ objectPosition: `${cropX}% ${cropY}%`, objectFit: "cover" }}
+                style={cropTransformStyle(cropX, cropY, zoom)}
                 draggable={false}
               />
             </div>
@@ -865,6 +989,38 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between text-xs text-muted mb-4">
               <span>Arraste para reposicionar</span>
               <span>{Math.round(cropX)}% / {Math.round(cropY)}%</span>
+            </div>
+
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <button
+                onClick={() => setZoom((z) => Math.max(1, Math.round((z - 0.25) * 100) / 100))}
+                disabled={configSaving}
+                className="p-2 rounded-full border border-primary/30 text-primary-dark hover:bg-primary/5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2 disabled:opacity-50"
+                title="Diminuir zoom"
+                aria-label="Diminuir zoom"
+              >
+                <ZoomOut size={16} />
+              </button>
+              <span className="w-16 text-center text-sm font-semibold tabular-nums text-foreground">
+                {Math.round(zoom * 100)}%
+              </span>
+              <button
+                onClick={() => setZoom((z) => Math.min(4, Math.round((z + 0.25) * 100) / 100))}
+                disabled={configSaving}
+                className="p-2 rounded-full border border-primary/30 text-primary-dark hover:bg-primary/5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2 disabled:opacity-50"
+                title="Aumentar zoom"
+                aria-label="Aumentar zoom"
+              >
+                <ZoomIn size={16} />
+              </button>
+              <button
+                onClick={() => setZoom(1)}
+                disabled={configSaving}
+                className="ml-2 px-3 py-1.5 rounded-full border border-primary/30 text-xs font-medium text-primary-dark hover:bg-primary/5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2 disabled:opacity-50"
+                title="Redefinir zoom"
+              >
+                Redefinir
+              </button>
             </div>
 
             <div className="space-y-4 mb-4">
@@ -913,7 +1069,7 @@ export default function AdminDashboard() {
 
             <div className="flex gap-3">
               <button
-                onClick={() => { setCropX(50); setCropY(50) }}
+                onClick={() => { setCropX(50); setCropY(50); setZoom(1) }}
                 disabled={configSaving}
                 className="flex-1 rounded-full border border-primary/30 px-4 py-2.5 text-sm font-medium text-primary-dark hover:bg-primary/5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2 disabled:opacity-50"
               >

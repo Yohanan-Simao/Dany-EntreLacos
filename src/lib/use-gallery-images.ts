@@ -10,6 +10,7 @@ export type GalleryImage = {
   type: string
   cropX: number
   cropY: number
+  zoom: number
 }
 
 const REFRESH_INTERVAL_MS = 60_000

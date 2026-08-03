@@ -12,6 +12,7 @@ export type StoredImage = {
   type: string
   cropX: number
   cropY: number
+  zoom: number
   createdAt: string
 }
 
@@ -89,7 +90,7 @@ export async function updateImageCrop(publicId: string, cropX: number, cropY: nu
 
 export async function updateImageMetaStore(
   publicId: string,
-  patch: Partial<Pick<StoredImage, "title" | "description" | "type" | "cropX" | "cropY">>
+  patch: Partial<Pick<StoredImage, "title" | "description" | "type" | "cropX" | "cropY" | "zoom">>
 ) {
   if (!hasBlobToken()) return
   const current = await readBlob()

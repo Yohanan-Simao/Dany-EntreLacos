@@ -4,6 +4,7 @@ import { motion } from "framer-motion"
 import Image from "next/image"
 import { Sparkles } from "lucide-react"
 import { useGalleryImages, type GalleryImage } from "@/lib/use-gallery-images"
+import { cropTransformStyle } from "@/lib/utils"
 
 export default function NovidadesSection({ initialImages = [] }: { initialImages?: GalleryImage[] }) {
   const images = useGalleryImages("novidade", initialImages)
@@ -54,7 +55,7 @@ export default function NovidadesSection({ initialImages = [] }: { initialImages
                   sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
                   loading="lazy"
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  style={{ objectPosition: `${img.cropX}% ${img.cropY}%` }}
+                  style={cropTransformStyle(img.cropX ?? 50, img.cropY ?? 50, img.zoom ?? 1)}
                 />
                 <div className="absolute top-3 left-3 bg-primary-dark text-white text-xs font-medium px-2.5 py-1 rounded-md tracking-wide">
                   <Sparkles size={12} className="inline -mt-0.5 mr-1" />

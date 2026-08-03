@@ -12,6 +12,7 @@ type ImageMeta = {
   type: string
   cropX: number
   cropY: number
+  zoom: number
 }
 
 function encodeContext(meta: ImageMeta): string {
@@ -40,6 +41,7 @@ function decodeContext(ctx: Record<string, string | Record<string, string>> | un
     type: meta.type || "produto",
     cropX: parseFloat(meta.cropX) || 50,
     cropY: parseFloat(meta.cropY) || 50,
+    zoom: parseFloat(meta.zoom) || 1,
   }
 }
 

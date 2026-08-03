@@ -4,6 +4,7 @@ import { motion } from "framer-motion"
 import Image from "next/image"
 import { Sparkles, Crown, Gift } from "lucide-react"
 import { useGalleryImages, type GalleryImage } from "@/lib/use-gallery-images"
+import { cropTransformStyle } from "@/lib/utils"
 
 const products = [
   {
@@ -72,7 +73,7 @@ export default function ProdutosSection({ initialImages = [] }: { initialImages?
                     sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
                     loading="lazy"
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    style={{ objectPosition: `${img.cropX}% ${img.cropY}%` }}
+                    style={cropTransformStyle(img.cropX ?? 50, img.cropY ?? 50, img.zoom ?? 1)}
                   />
                 </a>
                 <div className="p-4 flex items-center justify-between gap-2">

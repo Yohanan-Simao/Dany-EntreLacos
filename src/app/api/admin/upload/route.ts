@@ -61,9 +61,10 @@ export async function POST(request: NextRequest) {
       type,
       cropX: 50,
       cropY: 50,
+      zoom: 1,
     }, file.type)
 
-    const newImage = { id: Date.now(), url, publicId, title, description, type, cropX: 50, cropY: 50, createdAt: new Date().toISOString() }
+    const newImage = { id: Date.now(), url, publicId, title, description, type, cropX: 50, cropY: 50, zoom: 1, createdAt: new Date().toISOString() }
     addImage(newImage)
 
     return NextResponse.json(newImage)
@@ -92,7 +93,7 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json()
-  const { publicId, cropX, cropY, title, description, type } = body
+  const { publicId, cropX, cropY, title, description, type, zoom } = body
   if (!publicId) {
     return NextResponse.json({ error: "publicId é obrigatório" }, { status: 400 })
   }
@@ -103,6 +104,7 @@ export async function PATCH(request: NextRequest) {
   if (title !== undefined) meta.title = title
   if (description !== undefined) meta.description = description
   if (type !== undefined) meta.type = type
+  if (zoom !== undefined) meta.zoom = zoom
 
   try {
     await updateImageMeta(publicId, meta)
@@ -112,6 +114,7 @@ export async function PATCH(request: NextRequest) {
       ...(title !== undefined ? { title } : {}),
       ...(description !== undefined ? { description } : {}),
       ...(type !== undefined ? { type } : {}),
+      ...(zoom !== undefined ? { zoom } : {}),
     })
     return NextResponse.json({ success: true })
   } catch (err) {
