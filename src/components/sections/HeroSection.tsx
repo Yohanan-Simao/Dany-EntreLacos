@@ -18,7 +18,7 @@ export default function HeroSection() {
           transition={{ duration: 0.8 }}
           className="mb-6"
         >
-          <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
+          <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary-dark">
             <Sparkles size={14} />
             Artesanato feito com amor
           </span>
@@ -30,7 +30,7 @@ export default function HeroSection() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-balance leading-tight mb-6"
         >
-          <span className="text-primary font-cursive">Dany</span>{" "}
+          <span className="text-primary-dark font-cursive">Dany</span>{" "}
           <span className="text-foreground font-cursive">EntreLaços</span>
         </motion.h1>
 
@@ -51,13 +51,13 @@ export default function HeroSection() {
         >
           <a
             href="#contato"
-            className="rounded-full bg-primary px-8 py-3.5 text-base font-semibold text-white transition hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/30"
+            className="rounded-full bg-primary-dark px-8 py-3.5 text-base font-semibold text-white transition hover:brightness-95 hover:shadow-lg hover:shadow-primary/30"
           >
             Faça seu Pedido
           </a>
           <a
             href="#produtos"
-            className="rounded-full border-2 border-primary/30 px-8 py-3.5 text-base font-semibold text-primary transition hover:border-primary hover:bg-primary/5"
+            className="rounded-full border-2 border-primary/30 px-8 py-3.5 text-base font-semibold text-primary-dark transition hover:border-primary-dark hover:bg-primary/5"
           >
             Ver Produtos
           </a>
@@ -71,7 +71,7 @@ export default function HeroSection() {
         >
           <a
             href="#sobre"
-            className="inline-flex flex-col items-center gap-1 text-muted hover:text-primary transition-colors"
+            className="inline-flex flex-col items-center gap-1 text-muted hover:text-primary-dark transition-colors"
           >
             <span className="text-xs font-medium">Conheça mais</span>
             <ArrowDown size={16} className="animate-bounce" />

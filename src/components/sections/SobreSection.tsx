@@ -32,12 +32,12 @@ export default function SobreSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <span className="text-primary font-semibold text-sm tracking-widest uppercase mb-4 block">
+          <span className="text-primary-dark font-semibold text-sm tracking-widest uppercase mb-4 block">
             Sobre Nós
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold text-balance mb-4">
             A História da{" "}
-            <span className="text-primary font-cursive">Dany EntreLaços</span>
+            <span className="text-primary-dark font-cursive">Dany EntreLaços</span>
           </h2>
           <p className="text-muted max-w-2xl mx-auto text-lg leading-relaxed">
             Tudo começou com a paixão por criar acessórios delicados e únicos. O que era um hobby se transformou
@@ -55,7 +55,7 @@ export default function SobreSection() {
               transition={{ duration: 0.5, delay: index * 0.15 }}
               className="group text-center p-8 rounded-2xl bg-white hover:bg-primary/5 border-2 border-primary/30 shadow-sm transition-colors"
             >
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 text-primary mb-5 group-hover:bg-primary group-hover:text-white transition-colors">
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 text-primary-dark mb-5 group-hover:bg-primary-dark group-hover:text-white transition-colors">
                 <item.icon size={24} />
               </div>
               <h3 className="text-lg font-semibold mb-2">{item.title}</h3>

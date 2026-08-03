@@ -3,7 +3,7 @@ import Logo from "./Logo"
 
 export default function Footer() {
   return (
-    <footer className="bg-primary text-white">
+    <footer className="bg-primary-dark text-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
@@ -13,7 +13,7 @@ export default function Footer() {
                 Dany EntreLaços
               </span>
             </div>
-            <p className="text-white/85 text-sm leading-relaxed">
+            <p className="text-white text-sm leading-relaxed">
               Tiaras e laços artesanais feitos com amor e carinho. Cada peça é única, feita especialmente para você.
             </p>
           </div>
@@ -29,7 +29,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <a
                     href={link.href}
-                    className="text-white/85 hover:text-white transition-colors text-sm"
+                    className="text-white hover:text-white/80 transition-colors text-sm"
                   >
                     {link.label}
                   </a>
@@ -41,30 +41,30 @@ export default function Footer() {
           <div>
             <h3 className="font-semibold text-lg mb-4">Contato</h3>
             <ul className="space-y-3">
-              <li className="flex items-center gap-2 text-sm text-white/85">
+              <li className="flex items-center gap-2 text-sm text-white">
                 <Camera size={16} />
                 <a
                   href="https://instagram.com/danyentrelacos"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-white transition-colors"
+                  className="hover:text-white/80 transition-colors"
                 >
                   @danyentrelacos
                 </a>
               </li>
-              <li className="flex items-center gap-2 text-sm text-white/85">
+              <li className="flex items-center gap-2 text-sm text-white">
                 <MessageCircle size={16} />
                 <a
                   href="https://wa.me/5548984284149"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-white transition-colors"
+                  className="hover:text-white/80 transition-colors"
                 >
                   (48) 98428-4149
                 </a>
               </li>
 
-              <li className="flex items-center gap-2 text-sm text-white/85">
+              <li className="flex items-center gap-2 text-sm text-white">
                 <MapPin size={16} />
                 <span>Biguaçu, SC</span>
               </li>
@@ -72,7 +72,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 pt-8 border-t border-white/20 text-center text-sm text-white/85">
+        <div className="mt-10 pt-8 border-t border-white/20 text-center text-sm text-white">
           <p>&copy; {new Date().getFullYear()} Dany EntreLaços. Todos os direitos reservados.</p>
         </div>
       </div>

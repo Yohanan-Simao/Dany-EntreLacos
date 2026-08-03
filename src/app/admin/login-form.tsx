@@ -44,9 +44,9 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <main id="main" className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-sm bg-white rounded-2xl p-8 shadow-lg border border-primary/10">
-        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 text-primary mx-auto mb-6">
+        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 text-primary-dark mx-auto mb-6">
           <Lock size={24} />
         </div>
 
@@ -75,12 +75,12 @@ export default function LoginForm() {
           type="button"
           disabled={loading}
           onClick={handleLogin}
-          className="w-full rounded-full bg-primary px-8 py-3.5 text-base font-semibold text-white transition hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/30 flex items-center justify-center gap-2 disabled:opacity-60"
+          className="w-full rounded-full bg-primary-dark px-8 py-3.5 text-base font-semibold text-white transition hover:brightness-95 hover:shadow-lg hover:shadow-primary/30 flex items-center justify-center gap-2 disabled:opacity-60"
         >
           <LogIn size={18} />
           {loading ? "Entrando…" : "Entrar"}
         </button>
       </div>
-    </div>
+    </main>
   )
 }

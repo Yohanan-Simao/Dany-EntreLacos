@@ -52,7 +52,7 @@ export default function ContatoSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <span className="text-primary font-semibold text-sm tracking-widest uppercase mb-4 block">
+          <span className="text-primary-dark font-semibold text-sm tracking-widest uppercase mb-4 block">
             Contato
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold text-balance mb-4">
@@ -81,7 +81,7 @@ export default function ContatoSection() {
               </div>
               <h3 className="text-lg font-semibold mb-1">{method.title}</h3>
               <p className="text-sm text-muted mb-4">{method.desc}</p>
-              <span className="inline-flex items-center gap-2 text-sm font-medium text-primary transition-[gap,color] group-hover:gap-3">
+              <span className="inline-flex items-center gap-2 text-sm font-medium text-primary-dark transition-[gap,color] group-hover:gap-3">
                 {method.action}
                 <Send size={14} />
               </span>
@@ -150,7 +150,7 @@ export default function ContatoSection() {
             </div>
             <button
               type="submit"
-              className="w-full rounded-full bg-primary px-8 py-3.5 text-base font-semibold text-white transition hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/30 flex items-center justify-center gap-2"
+              className="w-full rounded-full bg-primary-dark px-8 py-3.5 text-base font-semibold text-white transition hover:brightness-95 hover:shadow-lg hover:shadow-primary/30 flex items-center justify-center gap-2"
             >
               <MessageCircle size={18} />
               Enviar Pedido pelo WhatsApp

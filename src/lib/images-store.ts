@@ -15,7 +15,7 @@ export type StoredImage = {
   createdAt: string
 }
 
-function useBlob() {
+function hasBlobToken() {
   return !!process.env.BLOB_READ_WRITE_TOKEN
 }
 
@@ -44,7 +44,7 @@ async function writeBlob(images: StoredImage[]) {
 }
 
 export async function getAllImages(): Promise<StoredImage[]> {
-  if (useBlob()) {
+  if (hasBlobToken()) {
     const cached = await readBlob()
     if (cached !== null) return cached
     try {
@@ -64,20 +64,20 @@ export async function getAllImages(): Promise<StoredImage[]> {
 }
 
 export async function addImage(image: StoredImage) {
-  if (!useBlob()) return
+  if (!hasBlobToken()) return
   const current = await readBlob()
   await writeBlob([image, ...(current || [])])
 }
 
 export async function removeImage(publicId: string) {
-  if (!useBlob()) return
+  if (!hasBlobToken()) return
   const current = await readBlob()
   if (!current) return
   await writeBlob(current.filter((img) => img.publicId !== publicId))
 }
 
 export async function updateImageCrop(publicId: string, cropX: number, cropY: number) {
-  if (!useBlob()) return
+  if (!hasBlobToken()) return
   const current = await readBlob()
   if (!current) return
   await writeBlob(

@@ -264,7 +264,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="bg-primary text-white shadow-lg">
+      <header className="bg-primary-dark text-white shadow-lg">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
           <h1 className="text-lg font-bold">Painel Administrativo</h1>
           <button
@@ -277,13 +277,13 @@ export default function AdminDashboard() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+      <main id="main" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex gap-2 mb-8">
           <button
             onClick={() => setTab("produto")}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition ${
               tab === "produto"
-                ? "bg-primary text-white shadow-md"
+                ? "bg-primary-dark text-white shadow-md"
                 : "bg-white text-muted border border-primary/20 hover:border-primary/40"
             }`}
           >
@@ -294,7 +294,7 @@ export default function AdminDashboard() {
             onClick={() => setTab("novidade")}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition ${
               tab === "novidade"
-                ? "bg-primary text-white shadow-md"
+                ? "bg-primary-dark text-white shadow-md"
                 : "bg-white text-muted border border-primary/20 hover:border-primary/40"
             }`}
           >
@@ -360,7 +360,7 @@ export default function AdminDashboard() {
           <button
             type="submit"
             disabled={uploading}
-            className="rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark disabled:opacity-60 flex items-center gap-2"
+            className="rounded-full bg-primary-dark px-6 py-2.5 text-sm font-semibold text-white transition hover:brightness-95 disabled:opacity-60 flex items-center gap-2"
           >
             <Upload size={16} />
             {uploading ? "Enviando..." : "Enviar"}
@@ -388,7 +388,7 @@ export default function AdminDashboard() {
                   <div className="absolute top-2 right-2 flex gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition">
                     <button
                       onClick={() => openAdjust(img)}
-                      className="p-2 rounded-full bg-black/50 text-white hover:bg-primary transition-colors"
+                      className="p-2 rounded-full bg-black/50 text-white hover:bg-primary-dark transition-colors"
                       title="Ajustar posição"
                       aria-label={`Ajustar posição de ${img.title}`}
                     >
@@ -419,7 +419,7 @@ export default function AdminDashboard() {
                       <h3 className="font-semibold text-sm flex-1 min-w-0 truncate">{img.title}</h3>
                       <button
                         onClick={() => startEdit(img)}
-                        className="shrink-0 p-1 text-muted hover:text-primary transition-colors"
+                        className="shrink-0 p-1 text-muted hover:text-primary-dark transition-colors"
                         title="Editar título"
                         aria-label={`Editar título de ${img.title}`}
                       >
@@ -491,13 +491,13 @@ export default function AdminDashboard() {
             <div className="flex gap-3">
               <button
                 onClick={() => { setCropX(50); setCropY(50) }}
-                className="flex-1 rounded-full border border-primary/30 px-4 py-2.5 text-sm font-medium text-primary hover:bg-primary/5 transition"
+                className="flex-1 rounded-full border border-primary/30 px-4 py-2.5 text-sm font-medium text-primary-dark hover:bg-primary/5 transition"
               >
                 Centralizar
               </button>
               <button
                 onClick={saveCrop}
-                className="flex-1 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-dark transition"
+                className="flex-1 rounded-full bg-primary-dark px-4 py-2.5 text-sm font-semibold text-white hover:brightness-95 transition"
               >
                 Salvar Posição
               </button>

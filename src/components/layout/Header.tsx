@@ -16,7 +16,7 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-primary shadow-lg">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-primary-dark shadow-lg">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           <a href="#hero" className="flex items-center gap-3">
@@ -31,14 +31,14 @@ export default function Header() {
               <a
                 key={link.href}
                 href={link.href}
-                className="text-sm font-medium text-white/80 hover:text-white transition-colors"
+                className="text-sm font-medium text-white hover:text-white/80 transition-colors"
               >
                 {link.label}
               </a>
             ))}
             <a
               href="#contato"
-              className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary transition-colors hover:bg-white/90"
+              className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary-dark transition-colors hover:bg-white/90"
             >
               Fazer Pedido
             </a>
@@ -46,7 +46,7 @@ export default function Header() {
 
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 text-white/80 hover:text-white"
+            className="md:hidden p-2 text-white hover:text-white/80"
             aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
             aria-expanded={isOpen}
             aria-controls="mobile-menu"
@@ -62,7 +62,7 @@ export default function Header() {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="md:hidden overflow-hidden bg-primary border-t border-white/20"
+            className="md:hidden overflow-hidden bg-primary-dark border-t border-white/20"
             id="mobile-menu"
           >
             <nav className="flex flex-col px-4 py-4 gap-3">
@@ -71,7 +71,7 @@ export default function Header() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsOpen(false)}
-                  className="text-sm font-medium text-white/80 hover:text-white transition-colors py-2"
+                  className="text-sm font-medium text-white hover:text-white/80 transition-colors py-2"
                 >
                   {link.label}
                 </a>
@@ -79,7 +79,7 @@ export default function Header() {
               <a
                 href="#contato"
                 onClick={() => setIsOpen(false)}
-                className="mt-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-primary text-center transition-colors hover:bg-white/90"
+                className="mt-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-primary-dark text-center transition-colors hover:bg-white/90"
               >
                 Fazer Pedido
               </a>

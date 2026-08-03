@@ -68,11 +68,11 @@ export default function NovidadesSection({ initialImages = [] }: { initialImages
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <span className="text-primary font-semibold text-sm tracking-widest uppercase mb-4 block">
+          <span className="text-primary-dark font-semibold text-sm tracking-widest uppercase mb-4 block">
             Novidades
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold text-balance mb-4">
-            <span className="text-primary font-cursive">Novidades</span> por aqui
+            <span className="text-primary-dark font-cursive">Novidades</span> por aqui
           </h2>
           <p className="text-muted max-w-2xl mx-auto text-lg leading-relaxed">
             Fique por dentro das últimas criações e lançamentos.
@@ -102,7 +102,7 @@ export default function NovidadesSection({ initialImages = [] }: { initialImages
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                   style={{ objectPosition: `${img.cropX}% ${img.cropY}%` }}
                 />
-                <div className="absolute top-2 left-2 flex items-center gap-1 bg-primary text-white text-xs font-medium px-2.5 py-1 rounded-full pointer-events-none">
+                <div className="absolute top-2 left-2 flex items-center gap-1 bg-primary-dark text-white text-xs font-medium px-2.5 py-1 rounded-full pointer-events-none">
                   <Sparkles size={12} />
                   Novo
                 </div>
@@ -118,7 +118,7 @@ export default function NovidadesSection({ initialImages = [] }: { initialImages
                   href={`https://wa.me/5548984284149?text=${encodeURIComponent(`Olá! Vi o modelo "${img.title}" no site de vocês e tenho interesse. Poderia me passar mais informações sobre valores e opções disponíveis?`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="shrink-0 text-xs font-semibold text-primary hover:text-primary-dark transition-colors whitespace-nowrap"
+                  className="shrink-0 text-xs font-semibold text-primary-dark hover:text-foreground transition-colors whitespace-nowrap"
                 >
                   Solicitar
                 </a>

@@ -86,7 +86,7 @@ export default function ProdutosSection({ initialImages = [] }: { initialImages?
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <span className="text-primary font-semibold text-sm tracking-widest uppercase mb-4 block">
+          <span className="text-primary-dark font-semibold text-sm tracking-widest uppercase mb-4 block">
             Produtos
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold text-balance mb-4">
@@ -126,7 +126,7 @@ export default function ProdutosSection({ initialImages = [] }: { initialImages?
                     href={wa}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="shrink-0 text-xs font-semibold text-primary hover:text-primary-dark transition-colors whitespace-nowrap"
+                    className="shrink-0 text-xs font-semibold text-primary-dark hover:text-foreground transition-colors whitespace-nowrap"
                   >
                     Solicitar
                   </a>
@@ -147,7 +147,7 @@ export default function ProdutosSection({ initialImages = [] }: { initialImages?
               transition={{ duration: 0.5, delay: index * 0.15 }}
               className="group bg-white rounded-2xl p-6 sm:p-8 border border-primary/10 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 transition"
             >
-              <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 text-primary mb-4 sm:mb-5">
+              <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 text-primary-dark mb-4 sm:mb-5">
                 <product.icon size={22} />
               </div>
               <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">{product.title}</h3>
@@ -173,7 +173,7 @@ export default function ProdutosSection({ initialImages = [] }: { initialImages?
         >
           <a
             href="#contato"
-            className="inline-flex rounded-full bg-primary px-8 py-3.5 text-base font-semibold text-white transition hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/30"
+            className="inline-flex rounded-full bg-primary-dark px-8 py-3.5 text-base font-semibold text-white transition hover:brightness-95 hover:shadow-lg hover:shadow-primary/30"
           >
             Solicite seu Orçamento
           </a>
