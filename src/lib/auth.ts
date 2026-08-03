@@ -29,21 +29,27 @@ export function createToken(): string {
 }
 
 export function validateToken(token: string): boolean {
+  return tokenAgeMs(token) !== null
+}
+
+export function tokenAgeMs(token: string): number | null {
   try {
     const lastDot = token.lastIndexOf(".")
-    if (lastDot === -1) return false
+    if (lastDot === -1) return null
 
     const payload = token.slice(0, lastDot)
     const signature = token.slice(lastDot + 1)
 
     const expected = createHmac("sha256", requireSecret()).update(payload).digest("hex")
-    if (signature !== expected) return false
+    if (signature !== expected) return null
 
     const timestamp = parseInt(payload.split(":")[0], 10)
-    if (Date.now() - timestamp > TOKEN_EXPIRY_MS) return false
+    if (Number.isNaN(timestamp)) return null
+    const age = Date.now() - timestamp
+    if (age > TOKEN_EXPIRY_MS) return null
 
-    return true
+    return age
   } catch {
-    return false
+    return null
   }
 }
