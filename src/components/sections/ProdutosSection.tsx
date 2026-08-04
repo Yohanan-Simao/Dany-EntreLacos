@@ -11,7 +11,7 @@ const products = [
     icon: Crown,
     title: "Tiaras Artesanais",
     desc: "Tiaras delicadas para casamentos, formaturas, aniversários e ocasiões especiais. Personalizáveis com flores, pérolas e cristais.",
-    features: ["Pronta entrega", "Personalizáveis", "Entrega em toda Santa Catarina"],
+    features: ["Pronta entrega", "Personalizáveis", "Entrega em todo o Brasil"],
   },
   {
     icon: Sparkles,

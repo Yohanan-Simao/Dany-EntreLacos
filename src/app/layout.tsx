@@ -69,7 +69,7 @@ export default function RootLayout({
       addressRegion: "SC",
       addressCountry: "BR",
     },
-    areaServed: "Santa Catarina",
+    areaServed: "Brasil",
     sameAs: ["https://instagram.com/danyentrelacos"],
   };
 
