@@ -55,7 +55,7 @@ export default function ContatoSection() {
             Viu uma peça ou quer uma <span className="text-primary-dark font-cursive">exclusiva</span>?
           </h2>
           <p className="text-muted max-w-xl text-lg leading-relaxed">
-            Pode pedir uma peça da vitrine ou descrever o que você imagina — modelo, cores, ocasião — e a gente cria do seu jeito. Sem compromisso.
+            Cada pedido é preparado como se fosse para alguém da nossa própria família, porque sabemos que por trás de cada escolha existe um amor. Conte o que você imagina — modelo, cores, ocasião — e a gente cria do seu jeito.
           </p>
         </motion.div>
 

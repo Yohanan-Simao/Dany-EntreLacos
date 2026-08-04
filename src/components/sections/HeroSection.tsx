@@ -20,7 +20,7 @@ export default function HeroSection() {
         >
           <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 font-cursive text-lg text-primary-dark">
             <Sparkles size={14} />
-            Peças feitas à mão, com carinho
+            Mais do que laços, criamos memórias
           </span>
         </motion.div>
 
@@ -30,8 +30,8 @@ export default function HeroSection() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold text-balance leading-[1.05] mb-6"
         >
-          <span className="text-primary-dark font-cursive">Dany</span>{" "}
-          <span className="text-foreground font-cursive">EntreLaços</span>
+          <span className="text-primary-dark font-cursive">Bem-vinda à</span>{" "}
+          <span className="text-foreground font-cursive">Dany EntreLaços</span>
         </motion.h1>
 
         <motion.p
@@ -40,7 +40,7 @@ export default function HeroSection() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="text-lg sm:text-xl text-muted max-w-2xl mx-auto mb-10 leading-relaxed"
         >
-          Tiaras e laços artesanais para todos os momentos. Escolha entre as peças prontas da nossa vitrine ou crie a sua exclusiva, feita sob encomenda do jeitinho que você imaginar.
+          Cada peça é produzida artesanalmente, com carinho, dedicação e atenção aos mínimos detalhes. Escolha uma das peças prontas da vitrine ou crie a sua exclusiva, feita sob encomenda do jeitinho que você imaginar.
         </motion.p>
 
         <motion.div

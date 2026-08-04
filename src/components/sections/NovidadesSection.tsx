@@ -28,7 +28,7 @@ export default function NovidadesSection({ initialImages = [] }: { initialImages
             As criações mais <span className="text-primary-dark font-cursive">recentes</span>
           </h2>
           <p className="text-muted max-w-xl text-lg leading-relaxed">
-            Dê uma olhada nas peças que acabaram de sair das nossas mãos — quem sabe a próxima não é feita pra você?
+            Peças exclusivas, personalizadas e feitas à mão, com o conforto e a beleza que cada pequena merece. Dê uma olhada nas novidades que acabaram de sair das nossas mãos.
           </p>
         </motion.div>
 

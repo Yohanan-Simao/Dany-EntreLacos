@@ -33,11 +33,11 @@ export default function SobreSection() {
           className="mb-16 max-w-2xl"
         >
           <span className="text-primary-dark font-cursive text-lg mb-3 block">
-            Nossa história
+            Sobre nós
           </span>
           <h2 className="font-display text-3xl sm:text-4xl font-semibold text-balance mb-4">
-            Cada peça começa com uma{" "}
-            <span className="text-primary-dark font-cursive">dose de amor</span>
+            Mais do que laços,{" "}
+            <span className="text-primary-dark font-cursive">criamos memórias</span>
           </h2>
         </motion.div>
 
@@ -49,14 +49,34 @@ export default function SobreSection() {
             transition={{ duration: 0.6 }}
           >
             <h3 className="font-display text-2xl sm:text-3xl font-semibold text-balance leading-snug mb-6">
-              O que começou como um hobby virou a nossa{" "}
-              <span className="text-primary-dark font-cursive">paixão</span>.
+              Há mais de 14 anos, a Dany EntreLaços nasceu da união de duas grandes paixões: minha{" "}
+              <span className="text-primary-dark font-cursive">filha</span> e o{" "}
+              <span className="text-primary-dark font-cursive">artesanato</span>.
             </h3>
             <p className="text-muted text-lg leading-relaxed">
-              Tudo começou com a vontade de criar acessórios delicados e únicos para quem a gente amava. As primeiras
-              tiaras nasceram como presentes — e a alegria de quem recebia mostrou que ali havia algo especial. Hoje,
-              a vitrine reúne peças que criamos com carinho, e cada pedido — seja de uma peça pronta ou de uma exclusiva —
-              carrega esse mesmo cuidado, do início ao fim.
+              Tudo começou quando ela tinha 7 anos. Eu sentia dificuldade em encontrar laços que combinassem com as
+              roupas dela e refletissem toda a delicadeza que eu imaginava. Foi então que decidi criar os meus próprios
+              acessórios.
+            </p>
+            <p className="text-muted text-lg leading-relaxed mt-4">
+              Na verdade, essa história começou ainda antes. Desde que minha filha nasceu, o artesanato já fazia parte
+              da minha vida — as primeiras touquinhas de crochê que ela usou foram feitas por mim, com muito amor. Sem
+              perceber, ali nascia uma paixão que anos depois se transformaria em um sonho.
+            </p>
+            <p className="text-muted text-lg leading-relaxed mt-4">
+              O que começou como uma necessidade e um gesto de carinho foi crescendo com dedicação, aprendizado e muito
+              amor. Ao longo dessa trajetória, tive o privilégio de fazer parte de momentos especiais na vida de
+              centenas de famílias, criando acessórios que acompanham sorrisos, aniversários, comunhão, primeiros dias
+              de aula e tantas outras memórias.
+            </p>
+            <p className="text-muted text-lg leading-relaxed mt-4">
+              Hoje, cada laço continua sendo feito à mão, com o mesmo cuidado e carinho do início. Acredito que o
+              verdadeiro valor de um produto artesanal está na história que ele carrega e no amor colocado em cada
+              detalhe. A menina que inspirou os meus primeiros laços cresceu, mas o propósito continua o mesmo: criar
+              peças que levem beleza, carinho e memórias para outras meninas e suas famílias.
+            </p>
+            <p className="text-muted text-lg leading-relaxed mt-4">
+              Seja bem-vinda à Dany EntreLaços. É uma alegria fazer parte da sua história também.
             </p>
           </motion.div>
 

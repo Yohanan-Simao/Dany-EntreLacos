@@ -47,7 +47,7 @@ export default function ProdutosSection({ initialImages = [] }: { initialImages?
             Prontas para levar ou <span className="text-primary-dark font-cursive">feitas pra você</span>
           </h2>
           <p className="text-muted max-w-xl text-lg leading-relaxed">
-            Gostou de alguma peça da vitrine? É só pedir. Ou conte o que você imagina e a gente cria uma exclusiva — sempre com materiais selecionados e acabamento impecável.
+            Aqui você encontra laços, tiaras, faixas e acessórios criados para combinar com cada fase, ocasião e personalidade — desde o dia a dia até festas e momentos inesquecíveis. Gostou de alguma peça? É só pedir, ou conte o que você imagina e a gente cria uma exclusiva.
           </p>
         </motion.div>
 

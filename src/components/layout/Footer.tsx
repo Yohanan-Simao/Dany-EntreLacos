@@ -15,7 +15,7 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-white text-sm leading-relaxed">
-              Tiaras e laços artesanais, feitos um a um com carinho. Cada peça é única — criada especialmente para o seu momento.
+              Mais do que laços, criamos memórias. Cada peça é produzida artesanalmente, com carinho e atenção aos detalhes, para os momentos mais especiais.
             </p>
           </div>
 
@@ -74,7 +74,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 pt-8 border-t border-white/20 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 text-center text-sm text-white">
-          <p>&copy; {new Date().getFullYear()} Dany EntreLaços. Todos os direitos reservados.</p>
+          <p className="font-cursive text-lg italic">&copy; {new Date().getFullYear()} Dany EntreLaços. Criando laços com você.</p>
           <nav className="flex items-center gap-3" aria-label="Legal">
             <span className="hidden sm:inline text-white/50" aria-hidden="true">·</span>
             <Link href="/privacidade" className="hover:text-white/80 transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-dark">
